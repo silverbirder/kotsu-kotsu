@@ -1,4 +1,8 @@
+// Import styles of packages that you've installed.
 import "@/styles/globals.css";
+import "@mantine/core/styles.css";
+
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 
 import { Inter } from "next/font/google";
 
@@ -21,8 +25,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <ColorSchemeScript />
+      </head>
       <body className={inter.className}>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <MantineProvider>{children}</MantineProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );
