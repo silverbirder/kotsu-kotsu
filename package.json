@@ -31,6 +31,7 @@
     "@trpc/next": "next",
     "@trpc/react-query": "next",
     "@trpc/server": "next",
+    "@vercel/speed-insights": "^1.0.10",
     "dayjs": "^1.11.10",
     "drizzle-orm": "^0.29.4",
     "embla-carousel-react": "^8.0.0",

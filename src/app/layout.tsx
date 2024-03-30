@@ -8,6 +8,8 @@ import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -32,6 +34,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <MantineProvider>{children}</MantineProvider>
         </TRPCReactProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
