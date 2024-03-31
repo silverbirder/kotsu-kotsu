@@ -14,6 +14,13 @@ export const env = createEnv({
         (str) => !str.includes("YOUR_DATABASE_URL_HERE"),
         "You forgot to change the default URL"
       ),
+    BASE_URL: z
+      .string()
+      .url()
+      .refine(
+        (str) => !str.includes("YOUR_BASE_URL_HERE"),
+        "You forgot to change the base URL"
+      ),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -47,6 +54,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    BASE_URL: process.env.BASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,

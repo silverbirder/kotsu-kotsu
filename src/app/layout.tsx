@@ -11,6 +11,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AppShellLayout } from "@/app/_components/app-shell-layout";
+import { env } from "@/env";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +21,7 @@ export const metadata = {
   title: "こつこつ",
   description: "こつこつ記録するだけ",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
-  metadataBase: new URL(process.env.VERCEL_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(env.BASE_URL),
   alternates: {
     canonical: "/",
   },
