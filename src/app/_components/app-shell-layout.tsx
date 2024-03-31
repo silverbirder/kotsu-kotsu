@@ -6,6 +6,8 @@ import {
   AppShellMain,
   AppShellNavbar,
   Burger,
+  Flex,
+  Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
@@ -27,8 +29,16 @@ export function AppShellLayout({ children }: Props) {
       padding="md"
     >
       <AppShellHeader>
-        <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-        <div>Logo</div>
+        <Flex gap="md">
+          <Burger opened={opened} hiddenFrom="sm" onClick={toggle} size="sm" />
+          <Text
+            fw={900}
+            variant="gradient"
+            gradient={{ from: "teal", to: "orange", deg: 90 }}
+          >
+            Kotsu Kotsu
+          </Text>
+        </Flex>
       </AppShellHeader>
       <AppShellNavbar p="md">Navbar</AppShellNavbar>
       <AppShellMain>{children}</AppShellMain>

@@ -1,6 +1,7 @@
 // Import styles of packages that you've installed.
 import "@/styles/globals.css";
 import "@mantine/core/styles.css";
+import "@mantine/charts/styles.css";
 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 
@@ -19,6 +20,10 @@ export const metadata = {
   title: "こつこつ",
   description: "こつこつ記録するだけ",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  metadataBase: new URL(process.env.VERCEL_URL ?? "http://localhost:3000"),
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
