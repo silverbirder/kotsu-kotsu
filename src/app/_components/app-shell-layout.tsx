@@ -13,7 +13,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function Layout({ children }: Props) {
+export function AppShellLayout({ children }: Props) {
   const [opened, { toggle }] = useDisclosure();
 
   return (

@@ -9,7 +9,7 @@ import { Inter } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Layout } from "@/app/_components/layout";
+import { AppShellLayout } from "@/app/_components/app-shell-layout";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,7 +34,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <TRPCReactProvider>
           <MantineProvider>
-            <Layout>{children}</Layout>
+            <AppShellLayout>{children}</AppShellLayout>
           </MantineProvider>
         </TRPCReactProvider>
         <SpeedInsights />
