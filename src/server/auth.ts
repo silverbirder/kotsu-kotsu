@@ -1,5 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { getServerSession, type NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import Google from "next-auth/providers/google";
 
@@ -7,12 +7,10 @@ import { env } from "@/env";
 import { db } from "@/server/db";
 import { createTable } from "@/server/db/schema";
 
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
-export const authOptions: NextAuthOptions = {
+export const {
+  handlers: { GET, POST },
+  auth,
+} = NextAuth({
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
@@ -29,11 +27,4 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-};
-
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
-export const getServerAuthSession = () => getServerSession(authOptions);
+});

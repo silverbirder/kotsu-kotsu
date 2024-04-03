@@ -1,10 +1,10 @@
-import { getServerAuthSession } from "@/server/auth";
+import { auth } from "@/server/auth";
 import { Link } from "@/app/_components/link";
 import { Button, Container, Title, Text, Flex, Divider } from "@mantine/core";
 import { pagesPath } from "@/lib/$path";
 
 export default async function Page() {
-  const session = await getServerAuthSession();
+  const session = await auth();
   return (
     <Container>
       <Flex gap={"md"} direction={"column"}>
