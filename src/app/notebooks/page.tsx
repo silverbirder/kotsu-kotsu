@@ -1,8 +1,21 @@
-import { Breadcrumbs, Button, Container, Title } from "@mantine/core";
+import {
+  Breadcrumbs,
+  Button,
+  Container,
+  Title,
+  Table,
+  TableThead,
+  TableTbody,
+  TableTr,
+  TableTh,
+  TableTd,
+} from "@mantine/core";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
+import { api } from "@/trpc/server";
 
 export default async function Page() {
+  const notebooks = await api.notebook.getList();
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
@@ -10,12 +23,31 @@ export default async function Page() {
       <Button component={Link} href={pagesPath.notebooks.create.$url().path}>
         ノートブック作成
       </Button>
-      <Button
-        component={Link}
-        href={pagesPath.notebooks._notebookId("1").$url().path}
-      >
-        ノートブック詳細
-      </Button>
+      <Table>
+        <TableThead>
+          <TableTr>
+            <TableTh>タイトル</TableTh>
+            <TableTh>作成日</TableTh>
+          </TableTr>
+        </TableThead>
+        <TableTbody>
+          {notebooks.map((notebook) => (
+            <TableTr key={notebook.id}>
+              <TableTd>
+                <Button
+                  component={Link}
+                  href={
+                    pagesPath.notebooks._notebookId(notebook.id).$url().path
+                  }
+                >
+                  {notebook.title}
+                </Button>
+              </TableTd>
+              <TableTd>{notebook.createdAt.toString()}</TableTd>
+            </TableTr>
+          ))}
+        </TableTbody>
+      </Table>
     </Container>
   );
 }

@@ -1,7 +1,9 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   integer,
+  pgEnum,
   pgTableCreator,
   primaryKey,
   serial,
@@ -112,5 +114,100 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  })
+);
+
+export const notebooks = createTable("notebook", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  remark: text("remark"),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  userId: varchar("userId", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+});
+
+export const entryValueTypeEnum = pgEnum("entryValueType", [
+  "number",
+  "string",
+  "boolean",
+  "array",
+]);
+
+export const notebookEntries = createTable(
+  "notebookEntry",
+  {
+    id: serial("id").primaryKey(),
+    notebookId: integer("notebookId")
+      .notNull()
+      .references(() => notebooks.id),
+    label: varchar("label", { length: 255 }).notNull(),
+    valueType: entryValueTypeEnum("entryValueType").notNull(),
+  },
+  (notebookEntry) => ({
+    notebookIdIdx: index("notebookEntry_notebookId_idx").on(
+      notebookEntry.notebookId
+    ),
+  })
+);
+
+export const notebookEntryValueArraies = createTable(
+  "notebookEntryValueArray",
+  {
+    id: serial("id").primaryKey(),
+    notebookEntryId: integer("notebookEntryId")
+      .notNull()
+      .references(() => notebookEntries.id),
+    value: varchar("value", { length: 255 }).notNull(),
+  },
+  (notebookEntryValueArray) => ({
+    notebookEntryIdIdx: index("notebookEntryValueArray_notebookEntryId_idx").on(
+      notebookEntryValueArray.notebookEntryId
+    ),
+  })
+);
+
+export const pages = createTable(
+  "page",
+  {
+    id: serial("id").primaryKey(),
+    notebookId: integer("notebookId")
+      .notNull()
+      .references(() => notebooks.id),
+    remark: text("remark"),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    userId: varchar("userId", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+  },
+  (page) => ({
+    notebookIdIdx: index("page_notebookId_idx").on(page.notebookId),
+    userIdIdx: index("page_userId_idx").on(page.userId),
+  })
+);
+
+export const pageEntries = createTable(
+  "pageEntry",
+  {
+    id: serial("id").primaryKey(),
+    pageId: integer("pageId")
+      .notNull()
+      .references(() => pages.id),
+    notebookEntryId: integer("notebookEntryId")
+      .notNull()
+      .references(() => notebookEntries.id),
+    stringValue: varchar("stringValue", { length: 255 }),
+    numberValue: integer("numberValue"),
+    booleanValue: boolean("booleanValue"),
+  },
+  (pageEntry) => ({
+    pageIdIdx: index("pageEntry_pageId_idx").on(pageEntry.pageId),
+    notebookEntryIdIdx: index("pageEntry_notebookEntryId_idx").on(
+      pageEntry.notebookEntryId
+    ),
   })
 );

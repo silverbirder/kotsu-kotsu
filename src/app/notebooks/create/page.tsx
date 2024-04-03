@@ -1,4 +1,5 @@
 import { Link } from "@/app/_components/link";
+import { NotebookForm } from "@/app/_components/notebook-form";
 import { pagesPath } from "@/lib/$path";
 import { Breadcrumbs, Container, Title } from "@mantine/core";
 
@@ -7,7 +8,7 @@ export default async function Page() {
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
       <Title order={1}>ノートブック作成</Title>
-      
+      <NotebookForm />
     </Container>
   );
 }

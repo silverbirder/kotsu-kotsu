@@ -1,6 +1,18 @@
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
-import { Breadcrumbs, Button, Container, Title } from "@mantine/core";
+import { api } from "@/trpc/server";
+import {
+  Breadcrumbs,
+  Button,
+  Container,
+  Table,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
+  Title,
+} from "@mantine/core";
 
 type Props = {
   params: {
@@ -24,6 +36,7 @@ export default async function Page({ params: { notebookId } }: Props) {
       {item.title}
     </Link>
   ));
+  const pages = await api.page.getList({ notebookId: Number(notebookId) });
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
@@ -36,15 +49,34 @@ export default async function Page({ params: { notebookId } }: Props) {
       >
         ページ作成
       </Button>
-      <Button
-        component={Link}
-        href={
-          pagesPath.notebooks._notebookId(notebookId).pages._pageId("1").$url()
-            .path
-        }
-      >
-        ページ詳細
-      </Button>
+      <Table>
+        <TableThead>
+          <TableTr>
+            <TableTh>タイトル</TableTh>
+            <TableTh>作成日</TableTh>
+          </TableTr>
+        </TableThead>
+        <TableTbody>
+          {pages.map((page) => (
+            <TableTr key={page.id}>
+              <TableTd>
+                <Button
+                  component={Link}
+                  href={
+                    pagesPath.notebooks
+                      ._notebookId(page.notebookId)
+                      .pages._pageId(page.id)
+                      .$url().path
+                  }
+                >
+                  {page.id}
+                </Button>
+              </TableTd>
+              <TableTd>{page.createdAt.toString()}</TableTd>
+            </TableTr>
+          ))}
+        </TableTbody>
+      </Table>
     </Container>
   );
 }
