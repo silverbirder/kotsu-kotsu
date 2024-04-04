@@ -20,7 +20,6 @@ const inter = Inter({
 export const metadata = {
   title: "こつこつ",
   description: "こつこつ記録するだけ",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
   metadataBase: new URL(env.BASE_URL),
   alternates: {
     canonical: "/",
