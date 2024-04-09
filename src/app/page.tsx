@@ -8,7 +8,7 @@ export default async function Page() {
   return (
     <Container>
       <Flex gap={"md"} direction={"column"}>
-        <Title order={1}>こつこつ!!!</Title>
+        <Title order={1}>こつこつ</Title>
         <Text size="xl">こつこつと、記録しよう</Text>
         <Divider />
         <Flex
