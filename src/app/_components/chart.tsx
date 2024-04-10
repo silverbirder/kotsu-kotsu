@@ -27,7 +27,6 @@ type Props = {
 };
 
 const colors = [
-  "gray",
   "red",
   "pink",
   "grape",
@@ -40,6 +39,7 @@ const colors = [
   "lime",
   "yellow",
   "orange",
+  "gray",
 ];
 
 export function Chart({ notebookEntries, pageEntries }: Props) {
@@ -136,33 +136,43 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   }, [notebookEntriesWithEtc, pageEntries]);
 
   const data = useMemo(() => {
-    const createdAt = categories.map((x) => x.pageEntry.createdAt).sort();
-    const [startDate, endDate] = [
-      createdAt[0],
-      createdAt[createdAt.length - 1],
-    ];
-    if (startDate === undefined || endDate === undefined) return [];
-    const dateRange: string[] = generateDateRange(
-      new Date(startDate),
-      new Date(endDate),
+    // const createdAt = categories.map((x) => x.pageEntry.createdAt).sort();
+    // const startDate = createdAt[0];
+    const startDate = new Date();
+    const dateRange: Date[] = generateDateRange(
+      startDate,
       aggregationPeriod?.value as "day" | "week" | "month"
     );
 
-    return dateRange.map((dateLabel) => {
-      const series: Record<string, number | string> = {};
+    return dateRange.map((dateLabel, index) => {
+      // 次の日付ラベルを計算します
+      let nextDateLabel: Date;
+      if (index < dateRange.length - 1) {
+        nextDateLabel = new Date(dateRange[index + 1] ?? "");
+      } else {
+        // 最後の要素の場合、指定された期間に応じて次の日付を計算
+        nextDateLabel = addDate(
+          new Date(dateRange[index] ?? ""),
+          1,
+          aggregationPeriod?.value as "day" | "week" | "month"
+        );
+      }
 
+      const series: Record<string, number | string> = {};
       categories.forEach((category) => {
-        const date = new Date(category.pageEntry.createdAt);
-        const dateStr = date
-          .toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
-          .replace(" ", "");
-        if (dateLabel === dateStr) {
+        const categoryDate = new Date(category.pageEntry.createdAt);
+        if (
+          categoryDate >= new Date(dateLabel) &&
+          categoryDate < nextDateLabel
+        ) {
           const prevValue = (series[category.categoryName] as number) ?? 0;
           series[category.categoryName] = prevValue + category.value;
         }
       });
 
-      series.date = dateLabel;
+      series.date = dateLabel
+        .toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
+        .replace(" ", "");
       return series;
     });
   }, [aggregationPeriod, categories]);
@@ -287,24 +297,25 @@ const addDate = (
 
 const generateDateRange = (
   startDate: Date,
-  endDate: Date,
   period: "day" | "week" | "month"
-): string[] => {
+): Date[] => {
   let current: Date = startDate;
   const range: Date[] = [];
-  while (current <= endDate) {
-    range.push(new Date(current));
-    if (period === "day") {
+  if (period === "day") {
+    for (let i = 0; i < 7; i++) {
+      range.push(current);
       current = addDate(current, 1, "day");
-    } else if (period === "week") {
+    }
+  } else if (period === "week") {
+    for (let i = 0; i < 5; i++) {
+      range.push(current);
       current = addDate(current, 1, "week");
-    } else if (period === "month") {
+    }
+  } else if (period === "month") {
+    for (let i = 0; i < 12; i++) {
+      range.push(current);
       current = addDate(current, 1, "month");
     }
   }
-  return range.map((date) =>
-    date
-      .toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
-      .replace(" ", "")
-  );
+  return range;
 };
