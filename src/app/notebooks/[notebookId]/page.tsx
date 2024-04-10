@@ -1,8 +1,8 @@
+import { Chart } from "@/app/_components/chart";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
 import { Breadcrumbs, Button, Container, Title } from "@mantine/core";
-import { AreaChart } from "@mantine/charts";
 
 type Props = {
   params: {
@@ -23,39 +23,46 @@ export default async function Page({ params: { notebookId } }: Props) {
       {item.title}
     </Link>
   ));
+
+  const notebook = await api.notebook.getDetail({ id: Number(notebookId) });
   const pages = await api.page.getList({ notebookId: Number(notebookId) });
   const pageDetails = await Promise.all(
     pages.map(async (page) => {
       return await api.page.getDetail({ id: page.id });
     })
   );
-  const entries = pageDetails
-    .map((page) => {
-      return page.entries
-        .filter((entry) => entry.notebookEntry.valueType === "number")
-        .map((entry) => {
-          return {
-            [entry.notebookEntry.label]: entry.pageEntry.numberValue,
-            date: entry.page.createdAt.toString(),
-          };
-        });
+  const pageEntries = pageDetails
+    .map((detail) => {
+      return detail.entries.map((entry) => {
+        const valueType = entry.notebookEntry.valueType;
+        const { stringValue, numberValue, booleanValue } = entry.pageEntry;
+        return {
+          value:
+            valueType === "string"
+              ? stringValue
+              : valueType === "number"
+              ? numberValue
+              : valueType === "boolean"
+              ? booleanValue
+              : numberValue,
+          createdAt: entry.page.createdAt,
+          notebookEntryId: entry.pageEntry.notebookEntryId,
+        };
+      });
     })
     .flat();
-  const colors = ["indigo.6", "blue.6", "teal.6", "green.6", "red.6"];
-  const uniqueSeriesNames: string[] = [];
-  const seriesWithColors = entries
-    .map((d) => {
-      const name = Object.keys(d)[0];
-      if (!uniqueSeriesNames.includes(name ?? "")) {
-        uniqueSeriesNames.push(name ?? "");
-      }
-      const colorIndex = uniqueSeriesNames.indexOf(name ?? "") % colors.length;
-      return {
-        name: name ?? "",
-        color: colors[colorIndex] ?? "",
-      };
-    })
-    .filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
+  const notebookEntries = notebook.entries.map((entry) => ({
+    notebookId: entry.notebook.id,
+    notebookEntryId: entry.notebookEntry.id,
+    label: entry.notebookEntry.label,
+    valueType: entry.notebookEntry.valueType,
+    select: notebook.select
+      .filter((x) => entry.notebookEntry.id === x.notebookEntry.id)
+      .map((x) => ({
+        id: x.notebookEntryValueArray.id,
+        value: x.notebookEntryValueArray.value,
+      })),
+  }));
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
@@ -66,13 +73,7 @@ export default async function Page({ params: { notebookId } }: Props) {
       >
         ページ一覧
       </Button>
-      <AreaChart
-        h={300}
-        data={entries}
-        dataKey="date"
-        series={seriesWithColors}
-        curveType="linear"
-      />
+      <Chart notebookEntries={notebookEntries} pageEntries={pageEntries} />
     </Container>
   );
 }
