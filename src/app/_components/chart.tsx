@@ -23,11 +23,13 @@ type Props = {
     value: string | number | boolean | null;
     createdAt: Date;
     notebookEntryId: number;
+    pageId: number;
   }[];
 };
 
 const colors = [
   "red",
+  "green",
   "pink",
   "grape",
   "violet",
@@ -35,7 +37,6 @@ const colors = [
   "blue",
   "cyan",
   "teal",
-  "green",
   "lime",
   "yellow",
   "orange",
@@ -70,7 +71,7 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
     }))
   );
   const categories = useMemo(() => {
-    return notebookEntriesWithEtc
+    const notebooks = notebookEntriesWithEtc
       .filter((x) => x.selected)
       .map((notebookEntry) => {
         const pageEntryWithValue = pageEntries
@@ -83,11 +84,15 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
               return [
                 {
                   pageEntry,
+                  pageEntries,
+                  notebookEntry,
                   categoryName: `${notebookEntry.label}-はい`,
                   value: (pageEntry.value as boolean) === true ? 1 : 0,
                 },
                 {
                   pageEntry,
+                  pageEntries,
+                  notebookEntry,
                   categoryName: `${notebookEntry.label}-いいえ`,
                   value: (pageEntry.value as boolean) === false ? 1 : 0,
                 },
@@ -96,6 +101,8 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
               return [
                 {
                   pageEntry,
+                  pageEntries,
+                  notebookEntry,
                   categoryName: notebookEntry.label,
                   value: pageEntry.value as number,
                 },
@@ -104,6 +111,8 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
               return notebookEntry.select.map((select) => {
                 return {
                   pageEntry,
+                  pageEntries,
+                  notebookEntry,
                   categoryName: `${notebookEntry.label}-${select.value}`,
                   value: (pageEntry.value as number) === select.id ? 1 : 0,
                 };
@@ -121,6 +130,8 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
               return strValues.map((string) => {
                 return {
                   pageEntry,
+                  pageEntries,
+                  notebookEntry,
                   categoryName: `${notebookEntry.label}-${string}`,
                   value: (pageEntry.value as string) === string ? 1 : 0,
                 };
@@ -133,11 +144,34 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
         return pageEntryWithValue;
       })
       .flat();
+    const newNotebooks = notebooks
+      .map((notebook) => {
+        const category = notebook.notebookEntry.category;
+        if (!category) return [notebook];
+        const categoryPageEntry = notebook.pageEntries.find(
+          (pageEntry) =>
+            pageEntry.notebookEntryId === category?.notebookEntryId &&
+            pageEntry.pageId === notebook.pageEntry.pageId
+        );
+        if (!categoryPageEntry) return [notebook];
+        if (category.valueType === "array") {
+          const categoryValue = category.select.find(
+            (x) => x.id === categoryPageEntry.value
+          )?.value;
+          const newNotebook = {
+            ...notebook,
+            categoryName: `${notebook.categoryName}-${categoryValue}`,
+          };
+          return [newNotebook];
+        } else {
+          return [notebook];
+        }
+      })
+      .flat();
+    return newNotebooks;
   }, [notebookEntriesWithEtc, pageEntries]);
 
   const data = useMemo(() => {
-    // const createdAt = categories.map((x) => x.pageEntry.createdAt).sort();
-    // const startDate = createdAt[0];
     const startDate = new Date();
     const dateRange: Date[] = generateDateRange(
       startDate,
@@ -145,12 +179,10 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
     );
 
     return dateRange.map((dateLabel, index) => {
-      // 次の日付ラベルを計算します
       let nextDateLabel: Date;
       if (index < dateRange.length - 1) {
         nextDateLabel = new Date(dateRange[index + 1] ?? "");
       } else {
-        // 最後の要素の場合、指定された期間に応じて次の日付を計算
         nextDateLabel = addDate(
           new Date(dateRange[index] ?? ""),
           1,
@@ -177,17 +209,33 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
     });
   }, [aggregationPeriod, categories]);
 
+  const uniqNames = useMemo(() => {
+    return unique(data.map((d) => Object.keys(d)).flat()).filter(
+      (d) => d !== "date"
+    );
+  }, [data]);
+
   const series = useMemo(() => {
     if (data.length == 0) return [];
-    return Object.keys(data[0] ?? {})
-      .filter((key) => key !== "date")
-      .map((key, index) => {
-        const colorIndex = index % colors.length;
-        return {
-          name: key,
-          color: `${colors[colorIndex]}.6`,
-        };
+    return uniqNames.map((key, index) => {
+      const colorIndex = index % colors.length;
+      return {
+        name: key,
+        color: `${colors[colorIndex]}.6`,
+      };
+    });
+  }, [data]);
+
+  const normalizedData = useMemo(() => {
+    return data.map((entry) => {
+      const normalizedEntry = { ...entry };
+      uniqNames.forEach((key) => {
+        if (!(key in entry)) {
+          normalizedEntry[key] = 0;
+        }
       });
+      return normalizedEntry;
+    });
   }, [data]);
   return (
     <Flex direction={"column"}>
@@ -217,55 +265,76 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
           }}
         >
           <Group mt="xs">
-            {notebookEntriesWithEtc.map((entry, index) => (
-              <Flex direction={"column"} key={index}>
-                <Checkbox
-                  value={entry.notebookEntryId.toString()}
-                  label={entry.label}
-                  key={index}
-                />
-                <SegmentedControl
-                  value={entry.aggregationMethod?.value}
-                  onChange={(value) => {
-                    const aggregationMethod = aggregationMethods.find(
-                      (x) => x.value === value
-                    );
-                    if (!aggregationMethod) return;
-                    const newEntries = [...notebookEntriesWithEtc];
-                    const newEntry = { ...entry };
-                    newEntry.aggregationMethod = aggregationMethod;
-                    newEntries[index] = newEntry;
-                    setNotebookEntriesWithEtc(newEntries);
-                  }}
-                  data={aggregationMethods}
-                />
-                <SegmentedControl
-                  value={entry.category?.notebookEntryId.toString()}
-                  onChange={(value) => {
-                    const category = notebookEntries.find(
-                      (x) => x.notebookEntryId === Number(value)
-                    );
-                    if (!category) return;
-                    const newEntries = [...notebookEntriesWithEtc];
-                    const newEntry = { ...entry };
-                    newEntry.category = category;
-                    newEntries[index] = newEntry;
-                    setNotebookEntriesWithEtc(newEntries);
-                  }}
-                  data={notebookEntries.map((x) => ({
+            {notebookEntriesWithEtc.map((entry, index) => {
+              const selectable = [
+                {
+                  value: "0",
+                  label: "なし",
+                },
+                ...notebookEntries
+                  .filter(
+                    (notebookEntry) =>
+                      notebookEntry.notebookEntryId !== entry.notebookEntryId
+                  )
+                  .map((x) => ({
                     value: x.notebookEntryId.toString(),
                     label: x.label,
-                  }))}
-                />
-              </Flex>
-            ))}
+                  })),
+              ];
+              return (
+                <Flex direction={"column"} key={index}>
+                  <Checkbox
+                    value={entry.notebookEntryId.toString()}
+                    label={entry.label}
+                    key={index}
+                  />
+                  <SegmentedControl
+                    value={entry.aggregationMethod?.value}
+                    onChange={(value) => {
+                      const aggregationMethod = aggregationMethods.find(
+                        (x) => x.value === value
+                      );
+                      if (!aggregationMethod) return;
+                      const newEntries = [...notebookEntriesWithEtc];
+                      const newEntry = { ...entry };
+                      newEntry.aggregationMethod = aggregationMethod;
+                      newEntries[index] = newEntry;
+                      setNotebookEntriesWithEtc(newEntries);
+                    }}
+                    data={aggregationMethods}
+                  />
+                  <SegmentedControl
+                    value={
+                      entry.category
+                        ? entry.category.notebookEntryId.toString()
+                        : "0"
+                    }
+                    onChange={(value) => {
+                      const category = notebookEntries.find(
+                        (x) => x.notebookEntryId === Number(value)
+                      );
+                      const newEntries = [...notebookEntriesWithEtc];
+                      const newEntry = { ...entry };
+                      if (!category) {
+                        newEntry.category = null;
+                      } else {
+                        newEntry.category = category;
+                      }
+                      newEntries[index] = newEntry;
+                      setNotebookEntriesWithEtc(newEntries);
+                    }}
+                    data={selectable}
+                  />
+                </Flex>
+              );
+            })}
           </Group>
         </CheckboxGroup>
       </Card>
       <Card>
         <AreaChart
           h={300}
-          data={data}
+          data={normalizedData}
           dataKey="date"
           series={series}
           curveType="linear"

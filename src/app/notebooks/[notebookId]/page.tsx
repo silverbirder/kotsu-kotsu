@@ -47,6 +47,7 @@ export default async function Page({ params: { notebookId } }: Props) {
               : numberValue,
           createdAt: entry.page.createdAt,
           notebookEntryId: entry.pageEntry.notebookEntryId,
+          pageId: entry.page.id,
         };
       });
     })
