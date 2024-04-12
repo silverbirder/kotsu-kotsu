@@ -11,6 +11,8 @@ import {
   MultiSelect,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { DateTimePicker } from "@mantine/dates";
+import { useState } from "react";
 
 type Props = {
   formValues: {
@@ -28,8 +30,10 @@ export function PageForm({ formValues, notebookId }: Props) {
   const convertFormValuesToInitialValues = (
     formValues: Props["formValues"]
   ) => {
-    const initialValues: Record<string, string | number | boolean | string[]> =
-      {};
+    const initialValues: Record<
+      string,
+      string | number | boolean | string[] | Date
+    > = {};
 
     formValues.forEach(({ id, valueType }) => {
       switch (valueType) {
@@ -49,9 +53,9 @@ export function PageForm({ formValues, notebookId }: Props) {
           break;
       }
     });
-
     return initialValues;
   };
+  const [createdAt, setCreatedAt] = useState(new Date());
   const form = useForm({
     initialValues: {
       ...convertFormValuesToInitialValues(formValues),
@@ -93,7 +97,7 @@ export function PageForm({ formValues, notebookId }: Props) {
               }
             })
             .flat();
-          create.mutate({ notebookId, entries: data });
+          create.mutate({ notebookId, entries: data, createdAt });
         })}
       >
         {formValues.map((formValue) => {
@@ -134,6 +138,15 @@ export function PageForm({ formValues, notebookId }: Props) {
           }
           return <></>;
         })}
+        <DateTimePicker
+          label="Pick date and time"
+          placeholder="Pick date and time"
+          value={createdAt}
+          onChange={(value) => {
+            if (!value) return;
+            setCreatedAt(value);
+          }}
+        />
         <Group justify="flex-end" mt="md">
           <Button type="submit">Submit</Button>
         </Group>

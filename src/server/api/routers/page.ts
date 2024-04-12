@@ -59,6 +59,7 @@ export const pageRouter = createTRPCRouter({
     .input(
       z.object({
         notebookId: z.number(),
+        createdAt: z.date(),
         entries: z.array(
           z.object({
             notebookEntryId: z.number(),
@@ -74,7 +75,11 @@ export const pageRouter = createTRPCRouter({
         const pagesRes = await tx
           .insert(pages)
           .values([
-            { userId: ctx.session.user.id, notebookId: input.notebookId },
+            {
+              userId: ctx.session.user.id,
+              notebookId: input.notebookId,
+              createdAt: input.createdAt,
+            },
           ])
           .returning();
         const page = pagesRes[0];

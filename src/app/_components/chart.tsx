@@ -224,7 +224,7 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
         color: `${colors[colorIndex]}.6`,
       };
     });
-  }, [data]);
+  }, [data, uniqNames]);
 
   const normalizedData = useMemo(() => {
     return data.map((entry) => {
@@ -236,7 +236,7 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
       });
       return normalizedEntry;
     });
-  }, [data]);
+  }, [data, uniqNames]);
   return (
     <Flex direction={"column"}>
       <Card>
