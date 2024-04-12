@@ -172,7 +172,10 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   }, [notebookEntriesWithEtc, pageEntries]);
 
   const data = useMemo(() => {
-    const startDate = new Date();
+    const dates = categories.map((x) =>
+      new Date(x.pageEntry.createdAt).getTime()
+    );
+    const startDate = new Date(Math.min(...dates));
     const dateRange: Date[] = generateDateRange(
       startDate,
       aggregationPeriod?.value as "day" | "week" | "month"
