@@ -36,7 +36,6 @@ export default async function Page() {
             justify={"flex-start"}
             align={"flex-start"}
           >
-            <Text></Text>
             <Button component={Link} href={pagesPath.notebooks.$url().path}>
               記録しよう
             </Button>

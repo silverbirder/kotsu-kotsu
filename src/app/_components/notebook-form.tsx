@@ -3,6 +3,9 @@
 import { api } from "@/trpc/react";
 import { TextInput, Flex, Select, Button } from "@mantine/core";
 import { useState } from "react";
+import { notifications } from "@mantine/notifications";
+import { useRouter } from "next/navigation";
+import { pagesPath } from "@/lib/$path";
 
 export function NotebookForm() {
   const initItem = {
@@ -19,6 +22,7 @@ export function NotebookForm() {
     }[]
   >([initItem]);
   const create = api.notebook.create.useMutation();
+  const router = useRouter();
   return (
     <Flex direction={"column"} gap={"md"}>
       <TextInput onChange={(e) => setTitle(e.target.value)} />
@@ -112,8 +116,32 @@ export function NotebookForm() {
         })}
       </Flex>
       <Button
-        onClick={() => {
-          create.mutate({ title: title, entries: items });
+        onClick={async () => {
+          create.mutate(
+            {
+              title: title,
+              entries: items,
+            },
+            {
+              onSuccess: (data) => {
+                notifications.show({
+                  title: "作成完了",
+                  message: "ノートブックが作成したよ！",
+                });
+                router.push(
+                  pagesPath.notebooks._notebookId(data.notebookId ?? 0).$url()
+                    .path
+                );
+              },
+              onError: () => {
+                notifications.show({
+                  title: "作成失敗",
+                  message: "ノートブックに作成できなかったよ",
+                  color: "red",
+                });
+              },
+            }
+          );
         }}
       >
         保存

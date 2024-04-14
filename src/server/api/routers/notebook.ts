@@ -55,6 +55,7 @@ export const notebookRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      let notebookId = null;
       await ctx.db.transaction(async (tx) => {
         const notebookRes = await tx
           .insert(notebooks)
@@ -65,7 +66,7 @@ export const notebookRouter = createTRPCRouter({
             },
           ])
           .returning();
-        const notebookId = notebookRes[0]?.id ?? 0;
+        notebookId = notebookRes[0]?.id ?? 0;
 
         for (const entry of input.entries) {
           const notebookEntryRes = await tx
@@ -88,5 +89,8 @@ export const notebookRouter = createTRPCRouter({
           }
         }
       });
+      return {
+        notebookId,
+      };
     }),
 });

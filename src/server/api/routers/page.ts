@@ -71,6 +71,7 @@ export const pageRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      let pageId: number | undefined;
       await ctx.db.transaction(async (tx) => {
         const pagesRes = await tx
           .insert(pages)
@@ -83,12 +84,16 @@ export const pageRouter = createTRPCRouter({
           ])
           .returning();
         const page = pagesRes[0];
+        pageId = page?.id;
         await tx.insert(pageEntries).values(
           input.entries.map((entry) => ({
             ...entry,
-            pageId: page?.id ?? 0,
+            pageId: pageId ?? 0,
           }))
         );
       });
+      return {
+        pageId,
+      };
     }),
 });

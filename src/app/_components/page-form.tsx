@@ -13,6 +13,9 @@ import {
 import { useForm } from "@mantine/form";
 import { DateTimePicker } from "@mantine/dates";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { notifications } from "@mantine/notifications";
+import { pagesPath } from "@/lib/$path";
 
 type Props = {
   formValues: {
@@ -27,6 +30,7 @@ type Props = {
   notebookId: number;
 };
 export function PageForm({ formValues, notebookId }: Props) {
+  const router = useRouter();
   const convertFormValuesToInitialValues = (
     formValues: Props["formValues"]
   ) => {
@@ -97,7 +101,30 @@ export function PageForm({ formValues, notebookId }: Props) {
               }
             })
             .flat();
-          create.mutate({ notebookId, entries: data, createdAt });
+          create.mutate(
+            { notebookId, entries: data, createdAt },
+            {
+              onSuccess: (data) => {
+                notifications.show({
+                  title: "作成完了",
+                  message: "ページが作成したよ！",
+                });
+                router.push(
+                  pagesPath.notebooks
+                    ._notebookId(notebookId)
+                    .pages._pageId(data.pageId ?? 0)
+                    .$url().path
+                );
+              },
+              onError: () => {
+                notifications.show({
+                  title: "作成失敗",
+                  message: "ページに作成できなかったよ",
+                  color: "red",
+                });
+              },
+            }
+          );
         })}
       >
         {formValues.map((formValue) => {
