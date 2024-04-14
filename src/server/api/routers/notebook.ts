@@ -3,6 +3,8 @@ import {
   notebookEntries,
   notebookEntryValueArraies,
   notebooks,
+  pageEntries,
+  pages,
 } from "@/server/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
@@ -31,9 +33,9 @@ export const notebookRouter = createTRPCRouter({
       const selectableEntries = entries
         .filter((entry) => entry.notebookEntry.valueType === "array")
         .map((entry) => entry.notebookEntry.id);
-        if (selectableEntries.length === 0) {
-          return { entries, select: [] };
-        }
+      if (selectableEntries.length === 0) {
+        return { entries, select: [] };
+      }
       const select = await ctx.db
         .select()
         .from(notebookEntries)
@@ -96,4 +98,90 @@ export const notebookRouter = createTRPCRouter({
         notebookId,
       };
     }),
+  deleteOne: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const notebookId = input.id;
+      let status = 500;
+      await ctx.db.transaction(async (tx) => {
+        const data = await tx
+          .select({
+            id: notebooks.id,
+          })
+          .from(notebooks)
+          .where(
+            and(
+              eq(notebooks.userId, ctx.session.user.id),
+              eq(notebooks.id, notebookId)
+            )
+          );
+        if (!data || data.length === 0) {
+          status = 404;
+          return;
+        }
+        const notebookEnties = await tx
+          .select({
+            notebookEntryId: notebookEntries.id,
+            notebookEntryValueArrayId: notebookEntryValueArraies.id,
+            pageId: pages.id,
+            pageEntryId: pageEntries.id,
+          })
+          .from(notebookEntries)
+          .leftJoin(
+            notebookEntryValueArraies,
+            eq(notebookEntries.id, notebookEntryValueArraies.notebookEntryId)
+          )
+          .leftJoin(pages, eq(notebookEntries.notebookId, pages.notebookId))
+          .leftJoin(
+            pageEntries,
+            eq(notebookEntries.id, pageEntries.notebookEntryId)
+          )
+          .where(eq(notebookEntries.notebookId, notebookId));
+        const notebookEntryIds = unique(
+          notebookEnties.map((x) => x.notebookEntryId)
+        );
+        const notebookEntryValueArrayIds = unique(
+          notebookEnties
+            .filter((x) => x.notebookEntryValueArrayId !== null)
+            .map((x) => x.notebookEntryValueArrayId!)
+        );
+        const pageIds = unique(
+          notebookEnties
+            .filter((x) => x.pageId !== null)
+            .map((x) => x.pageId!)
+        );
+        const pageEntryIds = unique(
+          notebookEnties
+            .filter((x) => x.pageEntryId !== null)
+            .map((x) => x.pageEntryId!)
+        );
+        if (pageEntryIds.length > 0) {
+          await tx
+            .delete(pageEntries)
+            .where(inArray(pageEntries.id, pageEntryIds));
+        }
+        if (pageIds.length > 0) {
+          await tx.delete(pages).where(inArray(pages.id, pageIds));
+        }
+        if (notebookEntryValueArrayIds.length > 0) {
+          await tx
+            .delete(notebookEntryValueArraies)
+            .where(
+              inArray(notebookEntryValueArraies.id, notebookEntryValueArrayIds)
+            );
+        }
+        if (notebookEntryIds.length > 0) {
+          await tx
+            .delete(notebookEntries)
+            .where(inArray(notebookEntries.id, notebookEntryIds));
+        }
+        await tx.delete(notebooks).where(eq(notebooks.id, notebookId));
+        status = 200;
+      });
+      return { status };
+    }),
 });
+
+const unique = (ary: number[]): number[] => {
+  return Array.from(new Set(ary));
+};

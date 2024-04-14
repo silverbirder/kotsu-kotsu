@@ -1,8 +1,16 @@
 import { Chart } from "@/app/_components/chart";
+import { DeleteNotebook } from "@/app/_components/delete-notebook";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { Breadcrumbs, Button, Container, Title, Text } from "@mantine/core";
+import {
+  Breadcrumbs,
+  Button,
+  Container,
+  Title,
+  Text,
+  Flex,
+} from "@mantine/core";
 
 type Props = {
   params: {
@@ -68,12 +76,15 @@ export default async function Page({ params: { notebookId } }: Props) {
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
       <Title order={1}>ノートブック {notebookId}</Title>
-      <Button
-        component={Link}
-        href={pagesPath.notebooks._notebookId(notebookId).pages.$url().path}
-      >
-        ページ一覧
-      </Button>
+      <Flex gap={"md"}>
+        <Button
+          component={Link}
+          href={pagesPath.notebooks._notebookId(notebookId).pages.$url().path}
+        >
+          ページ一覧
+        </Button>
+        <DeleteNotebook id={Number(notebookId)} />
+      </Flex>
       {pageEntries.length === 0 ? (
         <Text>まだ1つも記録がありません</Text>
       ) : (

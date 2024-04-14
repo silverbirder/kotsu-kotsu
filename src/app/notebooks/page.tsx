@@ -13,6 +13,7 @@ import {
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
+import { DeleteNotebook } from "../_components/delete-notebook";
 
 export default async function Page() {
   const notebooks = await api.notebook.getList();
@@ -28,6 +29,7 @@ export default async function Page() {
           <TableTr>
             <TableTh>タイトル</TableTh>
             <TableTh>作成日</TableTh>
+            <TableTh>削除</TableTh>
           </TableTr>
         </TableThead>
         <TableTbody>
@@ -44,6 +46,9 @@ export default async function Page() {
                 </Button>
               </TableTd>
               <TableTd>{notebook.createdAt.toString()}</TableTd>
+              <TableTd>
+                <DeleteNotebook id={notebook.id} />
+              </TableTd>
             </TableTr>
           ))}
         </TableTbody>
