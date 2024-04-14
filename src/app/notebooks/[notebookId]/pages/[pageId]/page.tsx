@@ -59,7 +59,7 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
       <Text>
         作成日:{" "}
         {info?.createdAt &&
-          dayjs(info?.createdAt).format("YYYY年M月D日 H時m分s秒")}
+          dayjs(info?.createdAt).format("YYYY年M月D日")}
       </Text>
       <Table>
         <TableThead>

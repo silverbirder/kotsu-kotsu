@@ -6,6 +6,8 @@ import {
   Breadcrumbs,
   Button,
   Container,
+  Flex,
+  TableScrollContainer,
   Table,
   TableTbody,
   TableTd,
@@ -52,40 +54,45 @@ export default async function Page({ params: { notebookId } }: Props) {
       >
         ページ作成
       </Button>
-      <Table>
-        <TableThead>
-          <TableTr>
-            <TableTh>作成日</TableTh>
-            <TableTh>詳細</TableTh>
-            <TableTh>削除</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {pages.map((page) => (
-            <TableTr key={page.id}>
-              <TableTd>
-                {dayjs(page.createdAt).format("YYYY年M月D日 H時m分s秒")}
-              </TableTd>
-              <TableTd>
-                <Button
-                  component={Link}
-                  href={
-                    pagesPath.notebooks
-                      ._notebookId(page.notebookId)
-                      .pages._pageId(page.id)
-                      .$url().path
-                  }
-                >
-                  詳細
-                </Button>
-              </TableTd>
-              <TableTd>
-                <DeletePage id={page.id} notebookId={page.notebookId} />
-              </TableTd>
+      <TableScrollContainer minWidth={500} type="native">
+        <Table striped highlightOnHover withTableBorder withColumnBorders>
+          <TableThead>
+            <TableTr>
+              <TableTh>作成日</TableTh>
+              <TableTh>アクション</TableTh>
             </TableTr>
-          ))}
-        </TableTbody>
-      </Table>
+          </TableThead>
+          <TableTbody>
+            {pages.map((page) => (
+              <TableTr key={page.id}>
+                <TableTd>
+                  {dayjs(page.createdAt).format("YYYY年M月D日")}
+                </TableTd>
+                <TableTd>
+                  <Flex gap="md">
+                    <Button
+                      component={Link}
+                      href={
+                        pagesPath.notebooks
+                          ._notebookId(page.notebookId)
+                          .pages._pageId(page.id)
+                          .$url().path
+                      }
+                    >
+                      詳細
+                    </Button>
+                    <DeletePage
+                      id={page.id}
+                      notebookId={page.notebookId}
+                      text="削除"
+                    />
+                  </Flex>
+                </TableTd>
+              </TableTr>
+            ))}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
     </Container>
   );
 }

@@ -10,15 +10,16 @@ import { pagesPath } from "@/lib/$path";
 type Props = {
   id: number;
   notebookId: number;
+  text?: string;
 };
-export function DeletePage({ id, notebookId }: Props) {
+export function DeletePage({ id, notebookId, text = "ページ削除" }: Props) {
   const router = useRouter();
   const [opened, { open, close }] = useDisclosure(false);
   const deleteMutation = api.page.deleteOne.useMutation();
   return (
     <>
       <Button color="red" onClick={open}>
-        ページ削除
+        {text}
       </Button>
       <Modal opened={opened} onClose={close} title="削除確認">
         <Flex gap={"md"} direction={"column"}>

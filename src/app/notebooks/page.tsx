@@ -4,11 +4,13 @@ import {
   Container,
   Title,
   Table,
+  TableScrollContainer,
   TableThead,
   TableTbody,
   TableTr,
   TableTh,
   TableTd,
+  Flex,
 } from "@mantine/core";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
@@ -25,39 +27,40 @@ export default async function Page() {
       <Button component={Link} href={pagesPath.notebooks.create.$url().path}>
         ノートブック作成
       </Button>
-      <Table>
-        <TableThead>
-          <TableTr>
-            <TableTh>タイトル</TableTh>
-            <TableTh>作成日</TableTh>
-            <TableTh>詳細</TableTh>
-            <TableTh>削除</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {notebooks.map((notebook) => (
-            <TableTr key={notebook.id}>
-              <TableTd>{notebook.title}</TableTd>
-              <TableTd>
-                {dayjs(notebook.createdAt).format("YYYY年M月D日 H時m分s秒")}
-              </TableTd>
-              <TableTd>
-                <Button
-                  component={Link}
-                  href={
-                    pagesPath.notebooks._notebookId(notebook.id).$url().path
-                  }
-                >
-                  詳細
-                </Button>
-              </TableTd>
-              <TableTd>
-                <DeleteNotebook id={notebook.id} />
-              </TableTd>
+      <TableScrollContainer minWidth={500} type="native">
+        <Table striped highlightOnHover withTableBorder withColumnBorders>
+          <TableThead>
+            <TableTr>
+              <TableTh>タイトル</TableTh>
+              <TableTh>アクション</TableTh>
+              <TableTh>作成日</TableTh>
             </TableTr>
-          ))}
-        </TableTbody>
-      </Table>
+          </TableThead>
+          <TableTbody>
+            {notebooks.map((notebook) => (
+              <TableTr key={notebook.id}>
+                <TableTd>{notebook.title}</TableTd>
+                <TableTd>
+                  <Flex gap="md">
+                    <Button
+                      component={Link}
+                      href={
+                        pagesPath.notebooks._notebookId(notebook.id).$url().path
+                      }
+                    >
+                      詳細
+                    </Button>
+                    <DeleteNotebook id={notebook.id} text="削除" />
+                  </Flex>
+                </TableTd>
+                <TableTd>
+                  {dayjs(notebook.createdAt).format("YYYY年M月D日")}
+                </TableTd>
+              </TableTr>
+            ))}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
     </Container>
   );
 }
