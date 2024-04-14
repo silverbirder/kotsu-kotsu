@@ -14,6 +14,7 @@ import {
   TableTr,
   Title,
 } from "@mantine/core";
+import dayjs from "dayjs";
 
 type Props = {
   params: {
@@ -37,11 +38,12 @@ export default async function Page({ params: { notebookId } }: Props) {
       {item.title}
     </Link>
   ));
+  const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const pages = await api.page.getList({ notebookId: Number(notebookId) });
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
-      <Title order={1}>ノートブック {notebookId} ページ一覧</Title>
+      <Title order={1}>{notebook?.title} ページ一覧</Title>
       <Button
         component={Link}
         href={
@@ -53,14 +55,17 @@ export default async function Page({ params: { notebookId } }: Props) {
       <Table>
         <TableThead>
           <TableTr>
-            <TableTh>タイトル</TableTh>
             <TableTh>作成日</TableTh>
+            <TableTh>詳細</TableTh>
             <TableTh>削除</TableTh>
           </TableTr>
         </TableThead>
         <TableTbody>
           {pages.map((page) => (
             <TableTr key={page.id}>
+              <TableTd>
+                {dayjs(page.createdAt).format("YYYY年M月D日 H時m分s秒")}
+              </TableTd>
               <TableTd>
                 <Button
                   component={Link}
@@ -71,10 +76,9 @@ export default async function Page({ params: { notebookId } }: Props) {
                       .$url().path
                   }
                 >
-                  {page.id}
+                  詳細
                 </Button>
               </TableTd>
-              <TableTd>{page.createdAt.toString()}</TableTd>
               <TableTd>
                 <DeletePage id={page.id} notebookId={page.notebookId} />
               </TableTd>

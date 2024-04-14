@@ -50,7 +50,7 @@ export default async function Page({ params: { notebookId } }: Props) {
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
-      <Title order={1}>ノートブック {notebookId} ページ作成</Title>
+      <Title order={1}>{res.entries[0]?.notebook.title} ページ作成</Title>
       <PageForm formValues={formValues} notebookId={Number(notebookId)} />
     </Container>
   );

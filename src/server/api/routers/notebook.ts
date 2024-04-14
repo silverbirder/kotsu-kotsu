@@ -17,6 +17,17 @@ export const notebookRouter = createTRPCRouter({
       .from(notebooks)
       .where(eq(notebooks.userId, user.id));
   }),
+  getInfo: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const user = ctx.session.user;
+      const notebookRes = await ctx.db
+        .select()
+        .from(notebooks)
+        .where(and(eq(notebooks.userId, user.id), eq(notebooks.id, input.id)));
+      const notebook = notebookRes.length > 0 ? notebookRes[0] : null;
+      return { notebook };
+    }),
   getDetail: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -146,9 +157,7 @@ export const notebookRouter = createTRPCRouter({
             .map((x) => x.notebookEntryValueArrayId!)
         );
         const pageIds = unique(
-          notebookEnties
-            .filter((x) => x.pageId !== null)
-            .map((x) => x.pageId!)
+          notebookEnties.filter((x) => x.pageId !== null).map((x) => x.pageId!)
         );
         const pageEntryIds = unique(
           notebookEnties

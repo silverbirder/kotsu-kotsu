@@ -31,7 +31,6 @@ export default async function Page({ params: { notebookId } }: Props) {
       {item.title}
     </Link>
   ));
-
   const notebook = await api.notebook.getDetail({ id: Number(notebookId) });
   const pages = await api.page.getList({ notebookId: Number(notebookId) });
   const pageDetails = await Promise.all(
@@ -75,7 +74,7 @@ export default async function Page({ params: { notebookId } }: Props) {
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
-      <Title order={1}>ノートブック {notebookId}</Title>
+      <Title order={1}>{notebook.entries[0]?.notebook.title}</Title>
       <Flex gap={"md"}>
         <Button
           component={Link}

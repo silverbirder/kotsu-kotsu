@@ -175,7 +175,7 @@ export function PageForm({ formValues, notebookId }: Props) {
           }}
         />
         <Group justify="flex-end" mt="md">
-          <Button type="submit">Submit</Button>
+          <Button type="submit">保存</Button>
         </Group>
       </form>
     </Box>

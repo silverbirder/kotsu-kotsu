@@ -14,6 +14,7 @@ import {
   TableThead,
   TableTr,
 } from "@mantine/core";
+import dayjs from "dayjs";
 
 type Props = {
   params: {
@@ -45,16 +46,21 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
       {item.title}
     </Link>
   ));
+  const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const page = await api.page.getDetail({ id: Number(pageId) });
   const { info, entries, select } = page;
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
       <Title order={1}>
-        ノートブック {notebookId} ページ {pageId}目
+        {notebook?.title} ページ詳細
       </Title>
       <DeletePage id={Number(pageId)} notebookId={Number(notebookId)} />
-      <Text>{info?.createdAt.toString()}</Text>
+      <Text>
+        作成日:{" "}
+        {info?.createdAt &&
+          dayjs(info?.createdAt).format("YYYY年M月D日 H時m分s秒")}
+      </Text>
       <Table>
         <TableThead>
           <TableTr>
