@@ -1,3 +1,4 @@
+import { DeletePage } from "@/app/_components/delete-page";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
@@ -52,6 +53,7 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
       <Title order={1}>
         ノートブック {notebookId} ページ {pageId}目
       </Title>
+      <DeletePage id={Number(pageId)} notebookId={Number(notebookId)} />
       <Text>{info?.createdAt.toString()}</Text>
       <Table>
         <TableThead>

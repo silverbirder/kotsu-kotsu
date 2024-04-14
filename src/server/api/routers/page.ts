@@ -99,4 +99,43 @@ export const pageRouter = createTRPCRouter({
         pageId,
       };
     }),
+  deleteOne: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const pageId = input.id;
+      let status = 500;
+      await ctx.db.transaction(async (tx) => {
+        const data = await tx
+          .select({
+            id: pages.id,
+          })
+          .from(pages)
+          .where(
+            and(eq(pages.userId, ctx.session.user.id), eq(pages.id, pageId))
+          );
+        if (!data || data.length === 0) {
+          status = 404;
+          return;
+        }
+        const pageEntryIds = await tx
+          .select({
+            id: pageEntries.id,
+          })
+          .from(pageEntries)
+          .where(eq(pageEntries.pageId, pageId));
+        const uniqPageEntryIds = unique(pageEntryIds.map((x) => x.id));
+        if (uniqPageEntryIds.length > 0) {
+          await tx
+            .delete(pageEntries)
+            .where(inArray(pageEntries.id, uniqPageEntryIds));
+        }
+        await tx.delete(pages).where(eq(pages.id, pageId));
+        status = 200;
+      });
+      return { status };
+    }),
 });
+
+const unique = (ary: number[]): number[] => {
+  return Array.from(new Set(ary));
+};

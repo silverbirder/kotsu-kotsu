@@ -1,3 +1,4 @@
+import { DeletePage } from "@/app/_components/delete-page";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
@@ -54,6 +55,7 @@ export default async function Page({ params: { notebookId } }: Props) {
           <TableTr>
             <TableTh>タイトル</TableTh>
             <TableTh>作成日</TableTh>
+            <TableTh>削除</TableTh>
           </TableTr>
         </TableThead>
         <TableTbody>
@@ -73,6 +75,9 @@ export default async function Page({ params: { notebookId } }: Props) {
                 </Button>
               </TableTd>
               <TableTd>{page.createdAt.toString()}</TableTd>
+              <TableTd>
+                <DeletePage id={page.id} notebookId={page.notebookId} />
+              </TableTd>
             </TableTr>
           ))}
         </TableTbody>
