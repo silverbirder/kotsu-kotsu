@@ -1,0 +1,660 @@
+{
+  "id": "5d456ac3-af37-4fb0-a4ea-811c88d8c9de",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "kotsu-kotsu_account": {
+      "name": "kotsu-kotsu_account",
+      "schema": "",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerAccountId": {
+          "name": "providerAccountId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token_type": {
+          "name": "token_type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "session_state": {
+          "name": "session_state",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "account_userId_idx": {
+          "name": "account_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_account_userId_kotsu-kotsu_user_id_fk": {
+          "name": "kotsu-kotsu_account_userId_kotsu-kotsu_user_id_fk",
+          "tableFrom": "kotsu-kotsu_account",
+          "tableTo": "kotsu-kotsu_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "kotsu-kotsu_account_provider_providerAccountId_pk": {
+          "name": "kotsu-kotsu_account_provider_providerAccountId_pk",
+          "columns": [
+            "provider",
+            "providerAccountId"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_notebookEntry": {
+      "name": "kotsu-kotsu_notebookEntry",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "notebookId": {
+          "name": "notebookId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entryValueType": {
+          "name": "entryValueType",
+          "type": "entryValueType",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "notebookEntry_notebookId_idx": {
+          "name": "notebookEntry_notebookId_idx",
+          "columns": [
+            "notebookId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_notebookEntry_notebookId_kotsu-kotsu_notebook_id_fk": {
+          "name": "kotsu-kotsu_notebookEntry_notebookId_kotsu-kotsu_notebook_id_fk",
+          "tableFrom": "kotsu-kotsu_notebookEntry",
+          "tableTo": "kotsu-kotsu_notebook",
+          "columnsFrom": [
+            "notebookId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_notebookEntryValueArray": {
+      "name": "kotsu-kotsu_notebookEntryValueArray",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "notebookEntryId": {
+          "name": "notebookEntryId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "notebookEntryValueArray_notebookEntryId_idx": {
+          "name": "notebookEntryValueArray_notebookEntryId_idx",
+          "columns": [
+            "notebookEntryId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_notebookEntryValueArray_notebookEntryId_kotsu-kotsu_notebookEntry_id_fk": {
+          "name": "kotsu-kotsu_notebookEntryValueArray_notebookEntryId_kotsu-kotsu_notebookEntry_id_fk",
+          "tableFrom": "kotsu-kotsu_notebookEntryValueArray",
+          "tableTo": "kotsu-kotsu_notebookEntry",
+          "columnsFrom": [
+            "notebookEntryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_notebook": {
+      "name": "kotsu-kotsu_notebook",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "remark": {
+          "name": "remark",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "kotsu-kotsu_notebook_userId_kotsu-kotsu_user_id_fk": {
+          "name": "kotsu-kotsu_notebook_userId_kotsu-kotsu_user_id_fk",
+          "tableFrom": "kotsu-kotsu_notebook",
+          "tableTo": "kotsu-kotsu_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_pageEntry": {
+      "name": "kotsu-kotsu_pageEntry",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pageId": {
+          "name": "pageId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notebookEntryId": {
+          "name": "notebookEntryId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stringValue": {
+          "name": "stringValue",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numberValue": {
+          "name": "numberValue",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "booleanValue": {
+          "name": "booleanValue",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "pageEntry_pageId_idx": {
+          "name": "pageEntry_pageId_idx",
+          "columns": [
+            "pageId"
+          ],
+          "isUnique": false
+        },
+        "pageEntry_notebookEntryId_idx": {
+          "name": "pageEntry_notebookEntryId_idx",
+          "columns": [
+            "notebookEntryId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_pageEntry_pageId_kotsu-kotsu_page_id_fk": {
+          "name": "kotsu-kotsu_pageEntry_pageId_kotsu-kotsu_page_id_fk",
+          "tableFrom": "kotsu-kotsu_pageEntry",
+          "tableTo": "kotsu-kotsu_page",
+          "columnsFrom": [
+            "pageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "kotsu-kotsu_pageEntry_notebookEntryId_kotsu-kotsu_notebookEntry_id_fk": {
+          "name": "kotsu-kotsu_pageEntry_notebookEntryId_kotsu-kotsu_notebookEntry_id_fk",
+          "tableFrom": "kotsu-kotsu_pageEntry",
+          "tableTo": "kotsu-kotsu_notebookEntry",
+          "columnsFrom": [
+            "notebookEntryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_page": {
+      "name": "kotsu-kotsu_page",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "notebookId": {
+          "name": "notebookId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "remark": {
+          "name": "remark",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "page_notebookId_idx": {
+          "name": "page_notebookId_idx",
+          "columns": [
+            "notebookId"
+          ],
+          "isUnique": false
+        },
+        "page_userId_idx": {
+          "name": "page_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_page_notebookId_kotsu-kotsu_notebook_id_fk": {
+          "name": "kotsu-kotsu_page_notebookId_kotsu-kotsu_notebook_id_fk",
+          "tableFrom": "kotsu-kotsu_page",
+          "tableTo": "kotsu-kotsu_notebook",
+          "columnsFrom": [
+            "notebookId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "kotsu-kotsu_page_userId_kotsu-kotsu_user_id_fk": {
+          "name": "kotsu-kotsu_page_userId_kotsu-kotsu_user_id_fk",
+          "tableFrom": "kotsu-kotsu_page",
+          "tableTo": "kotsu-kotsu_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_post": {
+      "name": "kotsu-kotsu_post",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdById": {
+          "name": "createdById",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "createdById_idx": {
+          "name": "createdById_idx",
+          "columns": [
+            "createdById"
+          ],
+          "isUnique": false
+        },
+        "name_idx": {
+          "name": "name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_post_createdById_kotsu-kotsu_user_id_fk": {
+          "name": "kotsu-kotsu_post_createdById_kotsu-kotsu_user_id_fk",
+          "tableFrom": "kotsu-kotsu_post",
+          "tableTo": "kotsu-kotsu_user",
+          "columnsFrom": [
+            "createdById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_session": {
+      "name": "kotsu-kotsu_session",
+      "schema": "",
+      "columns": {
+        "sessionToken": {
+          "name": "sessionToken",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "session_userId_idx": {
+          "name": "session_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "kotsu-kotsu_session_userId_kotsu-kotsu_user_id_fk": {
+          "name": "kotsu-kotsu_session_userId_kotsu-kotsu_user_id_fk",
+          "tableFrom": "kotsu-kotsu_session",
+          "tableTo": "kotsu-kotsu_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_user": {
+      "name": "kotsu-kotsu_user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emailVerified": {
+          "name": "emailVerified",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "image": {
+          "name": "image",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "kotsu-kotsu_verificationToken": {
+      "name": "kotsu-kotsu_verificationToken",
+      "schema": "",
+      "columns": {
+        "identifier": {
+          "name": "identifier",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "kotsu-kotsu_verificationToken_identifier_token_pk": {
+          "name": "kotsu-kotsu_verificationToken_identifier_token_pk",
+          "columns": [
+            "identifier",
+            "token"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {
+    "entryValueType": {
+      "name": "entryValueType",
+      "values": {
+        "number": "number",
+        "string": "string",
+        "boolean": "boolean",
+        "array": "array"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "pathpida --ignorePath .gitignore && next build",
+    "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
+    "db:introspect": "drizzle-kit introspect:pg",
     "db:seed": "tsx ./src/server/db/seed.ts",
     "db:studio": "drizzle-kit studio",
     "dev": "run-p dev:*",

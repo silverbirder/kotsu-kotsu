@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1713071139764,
+      "tag": "0000_clumsy_william_stryker",
+      "breakpoints": true
+    }
+  ]
+}
