@@ -47,6 +47,9 @@ export const pageRouter = createTRPCRouter({
       const selectableEntries = entries
         .filter((entry) => entry.notebookEntry.valueType === "array")
         .map((entry) => entry.notebookEntry.id);
+      if (selectableEntries.length === 0) {
+        return { info: info[0], entries: entries, select: [] };
+      }
       const select = await ctx.db
         .select()
         .from(notebookEntryValueArraies)

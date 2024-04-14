@@ -2,7 +2,7 @@ import { Chart } from "@/app/_components/chart";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { Breadcrumbs, Button, Container, Title } from "@mantine/core";
+import { Breadcrumbs, Button, Container, Title, Text } from "@mantine/core";
 
 type Props = {
   params: {
@@ -74,7 +74,11 @@ export default async function Page({ params: { notebookId } }: Props) {
       >
         ページ一覧
       </Button>
-      <Chart notebookEntries={notebookEntries} pageEntries={pageEntries} />
+      {pageEntries.length === 0 ? (
+        <Text>まだ1つも記録がありません</Text>
+      ) : (
+        <Chart notebookEntries={notebookEntries} pageEntries={pageEntries} />
+      )}
     </Container>
   );
 }
