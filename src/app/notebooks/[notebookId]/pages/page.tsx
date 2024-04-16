@@ -81,6 +81,18 @@ export default async function Page({ params: { notebookId } }: Props) {
                     >
                       詳細
                     </Button>
+                    <Button
+                      component={Link}
+                      href={
+                        pagesPath.notebooks
+                          ._notebookId(page.notebookId)
+                          .pages._pageId(page.id)
+                          .edit.$url().path
+                      }
+                      color="green"
+                    >
+                      編集
+                    </Button>
                     <DeletePage
                       id={page.id}
                       notebookId={page.notebookId}

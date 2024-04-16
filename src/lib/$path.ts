@@ -11,6 +11,9 @@ export const pagesPath = {
     _notebookId: (notebookId: string | number) => ({
       "pages": {
         _pageId: (pageId: string | number) => ({
+          "edit": {
+            $url: (url?: { hash?: string }) => ({ pathname: '/notebooks/[notebookId]/pages/[pageId]/edit' as const, query: { notebookId, pageId }, hash: url?.hash, path: `/notebooks/${notebookId}/pages/${pageId}/edit${buildSuffix(url)}` })
+          },
           $url: (url?: { hash?: string }) => ({ pathname: '/notebooks/[notebookId]/pages/[pageId]' as const, query: { notebookId, pageId }, hash: url?.hash, path: `/notebooks/${notebookId}/pages/${pageId}${buildSuffix(url)}` })
         }),
         "create": {

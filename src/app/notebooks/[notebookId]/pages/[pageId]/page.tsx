@@ -13,6 +13,8 @@ import {
   TableTh,
   TableThead,
   TableTr,
+  Button,
+  Flex,
 } from "@mantine/core";
 import dayjs from "dayjs";
 
@@ -52,14 +54,24 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
-      <Title order={1}>
-        {notebook?.title} ページ詳細
-      </Title>
-      <DeletePage id={Number(pageId)} notebookId={Number(notebookId)} />
+      <Title order={1}>{notebook?.title} ページ詳細</Title>
+      <Flex gap="md">
+        <Button
+          component={Link}
+          href={
+            pagesPath.notebooks
+              ._notebookId(notebookId)
+              .pages._pageId(Number(pageId))
+              .edit.$url().path
+          }
+        >
+          ページ編集
+        </Button>
+        <DeletePage id={Number(pageId)} notebookId={Number(notebookId)} />
+      </Flex>
       <Text>
         作成日:{" "}
-        {info?.createdAt &&
-          dayjs(info?.createdAt).format("YYYY年M月D日")}
+        {info?.createdAt && dayjs(info?.createdAt).format("YYYY年M月D日")}
       </Text>
       <Table>
         <TableThead>
