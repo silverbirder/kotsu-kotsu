@@ -112,6 +112,7 @@ export const pageRouter = createTRPCRouter({
             stringValue: z.string().nullable().nullish(),
             numberValue: z.number().nullable().nullish(),
             booleanValue: z.boolean().nullable().nullish(),
+            valueType: z.enum(["string", "number", "boolean", "array"]),
           })
         ),
       })
@@ -144,19 +145,46 @@ export const pageRouter = createTRPCRouter({
             )
           );
         for (const entry of input.entries) {
+          if (entry.valueType !== "array") {
+            await tx
+              .update(pageEntries)
+              .set({
+                stringValue: entry.stringValue,
+                numberValue: entry.numberValue,
+                booleanValue: entry.booleanValue,
+              })
+              .where(
+                and(
+                  eq(pageEntries.id, entry.pageEntryId),
+                  eq(pageEntries.pageId, input.pageId)
+                )
+              );
+          }
+        }
+        const entriesArray = input.entries.filter(
+          (entry) => entry.valueType === "array"
+        );
+        const entriesArrayNotebookId = entriesArray.map(
+          (x) => x.notebookEntryId
+        );
+        if (entriesArrayNotebookId.length > 0) {
           await tx
-            .update(pageEntries)
-            .set({
-              stringValue: entry.stringValue,
-              numberValue: entry.numberValue,
-              booleanValue: entry.booleanValue,
-            })
+            .delete(pageEntries)
             .where(
               and(
-                eq(pageEntries.id, entry.pageEntryId),
+                inArray(pageEntries.notebookEntryId, entriesArrayNotebookId),
                 eq(pageEntries.pageId, input.pageId)
               )
             );
+          await tx.insert(pageEntries).values(
+            entriesArray.map((x) => {
+              return {
+                pageId: input.pageId,
+                notebookEntryId: x.notebookEntryId,
+                numberValue: x.numberValue,
+              };
+            })
+          );
         }
         status = 200;
       });

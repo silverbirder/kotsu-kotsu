@@ -76,18 +76,34 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
         label: entry.notebookEntry.label,
         id: entry.notebookEntry.id,
         valueType: "array" as const,
-        value: entry.pageEntry.numberValue?.toString(),
+        value: [entry.pageEntry.numberValue?.toString() ?? ""],
         pageEntryId: entry.pageEntry.id,
         options,
       };
     }
   });
+  const entries2 = entries.reduce((prev, current) => {
+    if (current.valueType !== "array") {
+      prev.push(current);
+      return prev;
+    }
+    const notebookEntryId = current.id;
+    const notebookEntry = prev.find((p) => p.id === notebookEntryId);
+    if (!notebookEntry) {
+      prev.push(current);
+      return prev;
+    } else {
+      const value = notebookEntry.value as string[];
+      notebookEntry.value = [...value, ...current.value];
+      return prev;
+    }
+  }, [] as typeof entries);
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
       <Title order={1}>{notebook?.title} ページ編集</Title>
       <PageForm
-        entries={entries}
+        entries={entries2}
         notebookId={Number(notebookId)}
         createdAt={info?.createdAt}
         pageId={Number(pageId)}

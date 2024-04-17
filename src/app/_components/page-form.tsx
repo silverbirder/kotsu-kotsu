@@ -22,7 +22,7 @@ type Entry =
       label: string;
       id: number;
       valueType: "array";
-      value?: string;
+      value?: string[];
       pageEntryId?: number;
       options: {
         value: string;
@@ -77,8 +77,8 @@ export function PageForm({ entries, notebookId, pageId, createdAt }: Props) {
         case "array":
           const _prevValues = entriesValue[id] as string[];
           const prevValues = _prevValues ? _prevValues : [];
-          const values = value ? [value] : [];
-          entriesValue[id] = [...prevValues, ...values];
+          const values = value ? value : [];
+          entriesValue[id] = [...prevValues, ...values] as string[];
           break;
         default:
           break;
@@ -108,6 +108,7 @@ export function PageForm({ entries, notebookId, pageId, createdAt }: Props) {
                 notebookEntryId: Number(entry.id),
                 numberValue: Number(v),
                 pageEntryId: entry.pageEntryId ?? 0,
+                valueType: entry.valueType,
               };
             });
           } else {
@@ -121,6 +122,7 @@ export function PageForm({ entries, notebookId, pageId, createdAt }: Props) {
                   entry.valueType === "number" ? Number(value) : undefined,
                 booleanValue:
                   entry.valueType === "boolean" ? Boolean(value) : undefined,
+                valueType: entry.valueType,
               },
             ];
           }
