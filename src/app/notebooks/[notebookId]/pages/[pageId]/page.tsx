@@ -51,6 +51,30 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const page = await api.page.getDetail({ id: Number(pageId) });
   const { info, entries, select } = page;
+
+  const notebookEntryValues = entries.reduce((prev, entry) => {
+    const prevNotebookEntryValue = prev[entry.notebookEntry.id] ?? {
+      label: entry.notebookEntry.label,
+      values: [],
+    };
+    const value =
+      entry.notebookEntry.valueType === "array"
+        ? select.filter(
+            (s) =>
+              s.notebookEntryId === entry.notebookEntry.id &&
+              s.id === entry.pageEntry.numberValue
+          )[0]?.value
+        : entry.notebookEntry.valueType === "string"
+        ? entry.pageEntry.stringValue
+        : entry.notebookEntry.valueType === "number"
+        ? entry.pageEntry.numberValue?.toString()
+        : entry.notebookEntry.valueType === "boolean"
+        ? `${entry.pageEntry.booleanValue ? "はい" : "いいえ"}`
+        : "";
+    prevNotebookEntryValue.values.push(value ?? "");
+    prev[entry.notebookEntry.id] = prevNotebookEntryValue;
+    return prev;
+  }, {} as Record<string, { label: string; values: string[] }>);
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
@@ -81,24 +105,10 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
           </TableTr>
         </TableThead>
         <TableTbody>
-          {entries.map((entry) => (
-            <TableTr key={entry.notebookEntry.id}>
-              <TableTd>{entry.notebookEntry.label}</TableTd>
-              <TableTd>
-                {entry.notebookEntry.valueType === "array"
-                  ? select.filter(
-                      (s) =>
-                        s.notebookEntryId === entry.notebookEntry.id &&
-                        s.id === entry.pageEntry.numberValue
-                    )[0]?.value
-                  : entry.notebookEntry.valueType === "string"
-                  ? entry.pageEntry.stringValue
-                  : entry.notebookEntry.valueType === "number"
-                  ? entry.pageEntry.numberValue
-                  : entry.notebookEntry.valueType === "boolean"
-                  ? `${entry.pageEntry.booleanValue ? "はい" : "いいえ"}`
-                  : ""}
-              </TableTd>
+          {Object.keys(notebookEntryValues).map((key) => (
+            <TableTr key={key}>
+              <TableTd>{notebookEntryValues[key]?.label}</TableTd>
+              <TableTd>{notebookEntryValues[key]?.values.join(",")}</TableTd>
             </TableTr>
           ))}
         </TableTbody>
