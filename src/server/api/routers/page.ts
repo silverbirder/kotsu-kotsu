@@ -36,7 +36,7 @@ export const pageRouter = createTRPCRouter({
           notebookEntries,
           and(eq(pages.notebookId, notebookEntries.notebookId))
         )
-        .innerJoin(
+        .leftJoin(
           pageEntries,
           and(
             eq(pages.id, pageEntries.pageId),
@@ -161,21 +161,32 @@ export const pageRouter = createTRPCRouter({
               );
           }
         }
+        const entries = await tx
+          .select()
+          .from(pageEntries)
+          .leftJoin(
+            notebookEntries,
+            eq(notebookEntries.id, pageEntries.notebookEntryId)
+          )
+          .where(eq(pageEntries.pageId, input.pageId));
+
         const entriesArray = input.entries.filter(
           (entry) => entry.valueType === "array"
         );
-        const entriesArrayNotebookId = entriesArray.map(
-          (x) => x.notebookEntryId
-        );
-        if (entriesArrayNotebookId.length > 0) {
+        const pageEntryIds = entries
+          .filter((entry) => entry.notebookEntry?.valueType === "array")
+          .map((entry) => entry.pageEntry.id);
+        if (pageEntryIds.length > 0) {
           await tx
             .delete(pageEntries)
             .where(
               and(
-                inArray(pageEntries.notebookEntryId, entriesArrayNotebookId),
+                inArray(pageEntries.id, pageEntryIds),
                 eq(pageEntries.pageId, input.pageId)
               )
             );
+        }
+        if (entriesArray.length > 0) {
           await tx.insert(pageEntries).values(
             entriesArray.map((x) => {
               return {

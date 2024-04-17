@@ -46,24 +46,24 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
         label: entry.notebookEntry.label,
         id: entry.notebookEntry.id,
         valueType: "string" as const,
-        value: entry.pageEntry.stringValue,
-        pageEntryId: entry.pageEntry.id,
+        value: entry.pageEntry?.stringValue,
+        pageEntryId: entry.pageEntry?.id,
       };
     } else if (valueType === "number") {
       return {
         label: entry.notebookEntry.label,
         id: entry.notebookEntry.id,
         valueType: "number" as const,
-        value: entry.pageEntry.numberValue,
-        pageEntryId: entry.pageEntry.id,
+        value: entry.pageEntry?.numberValue,
+        pageEntryId: entry.pageEntry?.id,
       };
     } else if (valueType === "boolean") {
       return {
         label: entry.notebookEntry.label,
         id: entry.notebookEntry.id,
         valueType: "boolean" as const,
-        value: entry.pageEntry.booleanValue,
-        pageEntryId: entry.pageEntry.id,
+        value: entry.pageEntry?.booleanValue,
+        pageEntryId: entry.pageEntry?.id,
       };
     } else {
       const options = _select
@@ -76,8 +76,10 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
         label: entry.notebookEntry.label,
         id: entry.notebookEntry.id,
         valueType: "array" as const,
-        value: [entry.pageEntry.numberValue?.toString() ?? ""],
-        pageEntryId: entry.pageEntry.id,
+        value: entry.pageEntry?.numberValue?.toString()
+          ? [entry.pageEntry?.numberValue?.toString()]
+          : [],
+        pageEntryId: entry.pageEntry?.id,
         options,
       };
     }

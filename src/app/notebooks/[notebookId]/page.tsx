@@ -42,18 +42,17 @@ export default async function Page({ params: { notebookId } }: Props) {
     .map((detail) => {
       return detail.entries.map((entry) => {
         const valueType = entry.notebookEntry.valueType;
-        const { stringValue, numberValue, booleanValue } = entry.pageEntry;
         return {
           value:
             valueType === "string"
-              ? stringValue
+              ? entry.pageEntry?.stringValue ?? ""
               : valueType === "number"
-              ? numberValue
+              ? entry.pageEntry?.numberValue ?? 0
               : valueType === "boolean"
-              ? booleanValue
-              : numberValue,
+              ? entry.pageEntry?.booleanValue ?? false
+              : entry.pageEntry?.numberValue ?? 0,
           createdAt: entry.page.createdAt,
-          notebookEntryId: entry.pageEntry.notebookEntryId,
+          notebookEntryId: entry.pageEntry?.notebookEntryId ?? 0,
           pageId: entry.page.id,
         };
       });

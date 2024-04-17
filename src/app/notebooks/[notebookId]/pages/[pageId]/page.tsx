@@ -51,7 +51,6 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const page = await api.page.getDetail({ id: Number(pageId) });
   const { info, entries, select } = page;
-
   const notebookEntryValues = entries.reduce((prev, entry) => {
     const prevNotebookEntryValue = prev[entry.notebookEntry.id] ?? {
       label: entry.notebookEntry.label,
@@ -62,14 +61,14 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
         ? select.filter(
             (s) =>
               s.notebookEntryId === entry.notebookEntry.id &&
-              s.id === entry.pageEntry.numberValue
+              s.id === entry.pageEntry?.numberValue
           )[0]?.value
         : entry.notebookEntry.valueType === "string"
-        ? entry.pageEntry.stringValue
+        ? entry.pageEntry?.stringValue
         : entry.notebookEntry.valueType === "number"
-        ? entry.pageEntry.numberValue?.toString()
+        ? entry.pageEntry?.numberValue?.toString()
         : entry.notebookEntry.valueType === "boolean"
-        ? `${entry.pageEntry.booleanValue ? "はい" : "いいえ"}`
+        ? `${entry.pageEntry?.booleanValue ? "はい" : "いいえ"}`
         : "";
     prevNotebookEntryValue.values.push(value ?? "");
     prev[entry.notebookEntry.id] = prevNotebookEntryValue;
