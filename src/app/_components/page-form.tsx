@@ -12,167 +12,244 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { DateTimePicker } from "@mantine/dates";
-import { useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { notifications } from "@mantine/notifications";
 import { pagesPath } from "@/lib/$path";
 
-type Props = {
-  formValues: {
-    label: string;
-    id: number;
-    valueType: "string" | "number" | "boolean" | "array";
-    selectbox: {
-      value: string;
+type Entry =
+  | {
       label: string;
-    }[];
-  }[];
-  notebookId: number;
-};
-export function PageForm({ formValues, notebookId }: Props) {
-  const router = useRouter();
-  const convertFormValuesToInitialValues = (
-    formValues: Props["formValues"]
-  ) => {
-    const initialValues: Record<
-      string,
-      string | number | boolean | string[] | Date
-    > = {};
+      id: number;
+      valueType: "array";
+      value?: string;
+      pageEntryId?: number;
+      options: {
+        value: string;
+        label: string;
+      }[];
+    }
+  | {
+      label: string;
+      id: number;
+      valueType: "string";
+      value?: string | null;
+      pageEntryId?: number;
+    }
+  | {
+      label: string;
+      id: number;
+      valueType: "boolean";
+      value?: boolean | null;
+      pageEntryId?: number;
+    }
+  | {
+      label: string;
+      id: number;
+      valueType: "number";
+      value?: number | null;
+      pageEntryId?: number;
+    };
 
-    formValues.forEach(({ id, valueType }) => {
+type Props = {
+  entries: Entry[];
+  notebookId: number;
+  pageId?: number;
+  createdAt?: Date;
+};
+
+export function PageForm({ entries, notebookId, pageId, createdAt }: Props) {
+  const router = useRouter();
+  const initialValues = useMemo(() => {
+    const entriesValue: Record<string, string | number | boolean | string[]> =
+      {};
+    entries.forEach(({ id, value, valueType }) => {
       switch (valueType) {
         case "string":
-          initialValues[id] = "";
+          entriesValue[id] = value! ?? "";
           break;
         case "number":
-          initialValues[id] = 0;
+          entriesValue[id] = value! ?? 0;
           break;
         case "boolean":
-          initialValues[id] = false;
+          entriesValue[id] = value! ?? false;
           break;
         case "array":
-          initialValues[id] = [] as string[];
+          const _prevValues = entriesValue[id] as string[];
+          const prevValues = _prevValues ? _prevValues : [];
+          const values = value ? [value] : [];
+          entriesValue[id] = [...prevValues, ...values];
           break;
         default:
           break;
       }
     });
+    const initialValues = {
+      createdAt: createdAt ?? new Date(),
+      entries: entriesValue,
+    };
     return initialValues;
-  };
-  const [createdAt, setCreatedAt] = useState(new Date());
+  }, [entries, createdAt]);
+
   const form = useForm({
-    initialValues: {
-      ...convertFormValuesToInitialValues(formValues),
-    },
+    initialValues,
   });
   const create = api.page.create.useMutation();
-  return (
-    <Box maw={340} mx="auto">
-      <form
-        onSubmit={form.onSubmit((values) => {
-          const data = formValues
-            .map((formValue) => {
-              const value = values[formValue.id];
-              if (formValue.valueType === "array") {
-                return (value as string[]).map((v) => {
-                  return {
-                    notebookEntryId: Number(formValue.id),
-                    numberValue: Number(v),
-                  };
-                });
-              } else {
-                return [
-                  {
-                    notebookEntryId: Number(formValue.id),
-                    stringValue:
-                      formValue.valueType === "string"
-                        ? (value as string)
-                        : undefined,
-                    numberValue:
-                      formValue.valueType === "number"
-                        ? Number(value)
-                        : undefined,
-                    booleanValue:
-                      formValue.valueType === "boolean"
-                        ? Boolean(value)
-                        : undefined,
-                  },
-                ];
-              }
-            })
-            .flat();
-          create.mutate(
-            { notebookId, entries: data, createdAt },
-            {
-              onSuccess: (data) => {
+  const update = api.page.update.useMutation();
+  const handleSubmit = useCallback(
+    (values: typeof form.values) => {
+      const createdAt = values.createdAt;
+      const data = entries
+        .map((entry) => {
+          const value = values.entries[entry.id];
+          if (entry.valueType === "array") {
+            return (value as string[]).map((v) => {
+              return {
+                notebookEntryId: Number(entry.id),
+                numberValue: Number(v),
+                pageEntryId: entry.pageEntryId ?? 0,
+              };
+            });
+          } else {
+            return [
+              {
+                notebookEntryId: Number(entry.id),
+                pageEntryId: entry.pageEntryId ?? 0,
+                stringValue:
+                  entry.valueType === "string" ? (value as string) : undefined,
+                numberValue:
+                  entry.valueType === "number" ? Number(value) : undefined,
+                booleanValue:
+                  entry.valueType === "boolean" ? Boolean(value) : undefined,
+              },
+            ];
+          }
+        })
+        .flat();
+      const isUpdate = !!pageId;
+      if (isUpdate) {
+        update.mutate(
+          {
+            notebookId,
+            pageId,
+            entries: data,
+            createdAt,
+          },
+          {
+            onSuccess: (data) => {
+              if (data.status === 200) {
                 notifications.show({
-                  title: "作成完了",
-                  message: "ページが作成したよ！",
+                  title: "更新完了",
+                  message: "ページを更新したよ！",
                 });
                 router.push(
                   pagesPath.notebooks
                     ._notebookId(notebookId)
-                    .pages._pageId(data.pageId ?? 0)
+                    .pages._pageId(pageId ?? 0)
                     .$url().path
                 );
-              },
-              onError: () => {
+              } else {
                 notifications.show({
-                  title: "作成失敗",
-                  message: "ページに作成できなかったよ",
+                  title: "更新失敗",
+                  message: "ページを更新できなかったよ",
                   color: "red",
                 });
-              },
-            }
-          );
-        })}
-      >
-        {formValues.map((formValue) => {
-          if (formValue.valueType === "string") {
+              }
+            },
+            onError: () => {
+              notifications.show({
+                title: "更新失敗",
+                message: "ページを更新できなかったよ",
+                color: "red",
+              });
+            },
+          }
+        );
+      } else {
+        create.mutate(
+          {
+            notebookId,
+            entries: data,
+            createdAt,
+          },
+          {
+            onSuccess: (data) => {
+              notifications.show({
+                title: "作成完了",
+                message: "ページが作成したよ！",
+              });
+              router.push(
+                pagesPath.notebooks
+                  ._notebookId(notebookId)
+                  .pages._pageId(data.pageId ?? 0)
+                  .$url().path
+              );
+            },
+            onError: () => {
+              notifications.show({
+                title: "作成失敗",
+                message: "ページに作成できなかったよ",
+                color: "red",
+              });
+            },
+          }
+        );
+      }
+    },
+    [entries, create, update, form, notebookId, router, pageId]
+  );
+  return (
+    <Box maw={340} mx="auto">
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        {entries.map((entry) => {
+          if (entry.valueType === "string") {
             return (
               <TextInput
-                key={formValue.id}
-                label={formValue.label}
-                {...form.getInputProps(`${formValue.id}`, { type: "input" })}
+                key={entry.id}
+                label={entry.label}
+                {...form.getInputProps(`entries.${entry.id}`, {
+                  type: "input",
+                })}
               />
             );
-          } else if (formValue.valueType === "number") {
+          } else if (entry.valueType === "number") {
             return (
               <NumberInput
-                key={formValue.id}
-                label={formValue.label}
-                {...form.getInputProps(`${formValue.id}`, { type: "input" })}
+                key={entry.id}
+                label={entry.label}
+                {...form.getInputProps(`entries.${entry.id}`, {
+                  type: "input",
+                })}
               />
             );
-          } else if (formValue.valueType === "boolean") {
+          } else if (entry.valueType === "boolean") {
             return (
               <Checkbox
-                key={formValue.id}
-                label={formValue.label}
-                {...form.getInputProps(`${formValue.id}`, { type: "checkbox" })}
+                key={entry.id}
+                label={entry.label}
+                {...form.getInputProps(`entries.${entry.id}`, {
+                  type: "checkbox",
+                })}
               />
             );
-          } else if (formValue.valueType === "array") {
+          } else {
             return (
               <MultiSelect
-                key={formValue.id}
-                label={formValue.label}
-                data={formValue.selectbox}
+                key={entry.id}
+                label={entry.label}
+                data={entry.options}
                 searchable
-                {...form.getInputProps(`${formValue.id}`, { type: "input" })}
+                {...form.getInputProps(`entries.${entry.id}`, {
+                  type: "input",
+                })}
               />
             );
           }
-          return <></>;
         })}
         <DateTimePicker
-          label="Pick date and time"
-          placeholder="Pick date and time"
-          value={createdAt}
-          onChange={(value) => {
-            if (!value) return;
-            setCreatedAt(value);
-          }}
+          label="作成日"
+          valueFormat="YYYY年M月D日 h時m分"
+          {...form.getInputProps("createdAt")}
         />
         <Group justify="flex-end" mt="md">
           <Button type="submit">保存</Button>

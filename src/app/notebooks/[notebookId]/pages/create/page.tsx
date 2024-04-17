@@ -32,26 +32,49 @@ export default async function Page({ params: { notebookId } }: Props) {
     </Link>
   ));
   const res = await api.notebook.getDetail({ id: Number(notebookId) });
-  const { entries, select } = res;
-  const formValues = entries.map((entry) => {
-    const selectbox = select
-      .filter((s) => s.notebookEntry.id === entry.notebookEntry.id)
-      .map((x) => ({
-        value: x.notebookEntryValueArray.id.toString(),
-        label: x.notebookEntryValueArray.value,
-      }));
-    return {
-      label: entry.notebookEntry.label,
-      id: entry.notebookEntry.id,
-      valueType: entry.notebookEntry.valueType,
-      selectbox: selectbox,
-    };
+  const { entries: _entries, select: _select } = res;
+  const entries = _entries.map((entry) => {
+    const {
+      notebookEntry: { valueType },
+    } = entry;
+    if (valueType === "string") {
+      return {
+        label: entry.notebookEntry.label,
+        id: entry.notebookEntry.id,
+        valueType: "string" as const,
+      };
+    } else if (valueType === "number") {
+      return {
+        label: entry.notebookEntry.label,
+        id: entry.notebookEntry.id,
+        valueType: "number" as const,
+      };
+    } else if (valueType === "boolean") {
+      return {
+        label: entry.notebookEntry.label,
+        id: entry.notebookEntry.id,
+        valueType: "boolean" as const,
+      };
+    } else {
+      const options = _select
+        .filter((x) => x.notebookEntry.id === entry.notebookEntry.id)
+        .map((x) => ({
+          value: x.notebookEntryValueArray.id.toString(),
+          label: x.notebookEntryValueArray.value,
+        }));
+      return {
+        label: entry.notebookEntry.label,
+        id: entry.notebookEntry.id,
+        valueType: "array" as const,
+        options,
+      };
+    }
   });
   return (
     <Container>
       <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
       <Title order={1}>{res.entries[0]?.notebook.title} ページ作成</Title>
-      <PageForm formValues={formValues} notebookId={Number(notebookId)} />
+      <PageForm entries={entries} notebookId={Number(notebookId)} />
     </Container>
   );
 }

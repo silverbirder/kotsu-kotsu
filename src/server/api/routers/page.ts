@@ -99,6 +99,69 @@ export const pageRouter = createTRPCRouter({
         pageId,
       };
     }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        notebookId: z.number(),
+        pageId: z.number(),
+        createdAt: z.date(),
+        entries: z.array(
+          z.object({
+            notebookEntryId: z.number(),
+            pageEntryId: z.number(),
+            stringValue: z.string().nullable().nullish(),
+            numberValue: z.number().nullable().nullish(),
+            booleanValue: z.boolean().nullable().nullish(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      let status = 500;
+      await ctx.db.transaction(async (tx) => {
+        const res = await tx
+          .select()
+          .from(pages)
+          .where(
+            and(
+              eq(pages.id, input.pageId),
+              eq(pages.userId, ctx.session.user.id)
+            )
+          );
+        if (res.length === 0) {
+          status = 404;
+          return;
+        }
+        await tx
+          .update(pages)
+          .set({
+            createdAt: input.createdAt,
+          })
+          .where(
+            and(
+              eq(pages.id, input.pageId),
+              eq(pages.userId, ctx.session.user.id)
+            )
+          );
+        for (const entry of input.entries) {
+          await tx
+            .update(pageEntries)
+            .set({
+              stringValue: entry.stringValue,
+              numberValue: entry.numberValue,
+              booleanValue: entry.booleanValue,
+            })
+            .where(
+              and(
+                eq(pageEntries.id, entry.pageEntryId),
+                eq(pageEntries.pageId, input.pageId)
+              )
+            );
+        }
+        status = 200;
+      });
+      return { status };
+    }),
   deleteOne: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
