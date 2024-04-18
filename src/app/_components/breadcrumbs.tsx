@@ -1,4 +1,4 @@
-import { Breadcrumbs as MantineBreadcrumbs, Anchor } from "@mantine/core";
+import { Breadcrumbs as MantineBreadcrumbs, Anchor, Text } from "@mantine/core";
 import { Link } from "./link";
 
 type Props = {
@@ -12,7 +12,7 @@ export function Breadcrumbs({ items }: Props) {
     <MantineBreadcrumbs style={{ flexWrap: "wrap" }}>
       {items.map(({ href, title }) => (
         <Anchor component={Link} href={href} key={href}>
-          {title}
+          <Text size="sm">{title}</Text>
         </Anchor>
       ))}
     </MantineBreadcrumbs>
