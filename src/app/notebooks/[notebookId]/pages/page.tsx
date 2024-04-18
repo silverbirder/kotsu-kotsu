@@ -1,9 +1,9 @@
+import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { DeletePage } from "@/app/_components/delete-page";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
 import {
-  Breadcrumbs,
   Button,
   Container,
   Flex,
@@ -24,27 +24,24 @@ type Props = {
   };
 };
 export default async function Page({ params: { notebookId } }: Props) {
-  const breadcrumbs = [
-    { title: "Top", href: pagesPath.$url().path },
-    { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-    {
-      title: "ノートブック詳細",
-      href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-    },
-    {
-      title: "ページ一覧",
-      href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
-    },
-  ].map((item, index) => (
-    <Link href={item.href} key={index}>
-      {item.title}
-    </Link>
-  ));
   const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const pages = await api.page.getList({ notebookId: Number(notebookId) });
   return (
     <Container>
-      <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
+      <Breadcrumbs
+        items={[
+          { title: "Top", href: pagesPath.$url().path },
+          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
+          {
+            title: "ノートブック詳細",
+            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+          },
+          {
+            title: "ページ一覧",
+            href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
+          },
+        ]}
+      />
       <Title order={1}>{notebook?.title} ページ一覧</Title>
       <Button
         component={Link}

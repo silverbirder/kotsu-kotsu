@@ -1,8 +1,8 @@
-import { Link } from "@/app/_components/link";
+import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { PageForm } from "@/app/_components/page-form";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { Breadcrumbs, Container, Title } from "@mantine/core";
+import { Container, Title } from "@mantine/core";
 
 type Props = {
   params: {
@@ -11,29 +11,6 @@ type Props = {
   };
 };
 export default async function Page({ params: { notebookId, pageId } }: Props) {
-  const breadcrumbs = [
-    { title: "Top", href: pagesPath.$url().path },
-    { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-    {
-      title: "ノートブック詳細",
-      href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-    },
-    {
-      title: "ページ一覧",
-      href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
-    },
-    {
-      title: "ページ編集",
-      href: pagesPath.notebooks
-        ._notebookId(notebookId)
-        .pages._pageId(pageId)
-        .edit.$url().path,
-    },
-  ].map((item, index) => (
-    <Link href={item.href} key={index}>
-      {item.title}
-    </Link>
-  ));
   const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const res = await api.page.getDetail({ id: Number(pageId) });
   const { entries: _entries, select: _select, info } = res;
@@ -102,7 +79,27 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   }, [] as typeof entries);
   return (
     <Container>
-      <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
+      <Breadcrumbs
+        items={[
+          { title: "Top", href: pagesPath.$url().path },
+          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
+          {
+            title: "ノートブック詳細",
+            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+          },
+          {
+            title: "ページ一覧",
+            href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
+          },
+          {
+            title: "ページ編集",
+            href: pagesPath.notebooks
+              ._notebookId(notebookId)
+              .pages._pageId(pageId)
+              .edit.$url().path,
+          },
+        ]}
+      />
       <Title order={1}>{notebook?.title} ページ編集</Title>
       <PageForm
         entries={entries2}

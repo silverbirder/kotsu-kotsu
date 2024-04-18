@@ -201,7 +201,7 @@ export function PageForm({ entries, notebookId, pageId, createdAt }: Props) {
     [entries, create, update, form, notebookId, router, pageId]
   );
   return (
-    <Box maw={340} mx="auto">
+    <Box maw={340}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         {entries.map((entry) => {
           if (entry.valueType === "string") {

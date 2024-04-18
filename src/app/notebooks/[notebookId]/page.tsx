@@ -1,16 +1,10 @@
+import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { Chart } from "@/app/_components/chart";
 import { DeleteNotebook } from "@/app/_components/delete-notebook";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import {
-  Breadcrumbs,
-  Button,
-  Container,
-  Title,
-  Text,
-  Flex,
-} from "@mantine/core";
+import { Button, Container, Title, Text, Flex } from "@mantine/core";
 
 type Props = {
   params: {
@@ -19,18 +13,6 @@ type Props = {
 };
 
 export default async function Page({ params: { notebookId } }: Props) {
-  const breadcrumbs = [
-    { title: "Top", href: pagesPath.$url().path },
-    { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-    {
-      title: "ノートブック詳細",
-      href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-    },
-  ].map((item, index) => (
-    <Link href={item.href} key={index}>
-      {item.title}
-    </Link>
-  ));
   const notebook = await api.notebook.getDetail({ id: Number(notebookId) });
   const pages = await api.page.getList({ notebookId: Number(notebookId) });
   const pageDetails = await Promise.all(
@@ -72,7 +54,16 @@ export default async function Page({ params: { notebookId } }: Props) {
   }));
   return (
     <Container>
-      <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
+      <Breadcrumbs
+        items={[
+          { title: "Top", href: pagesPath.$url().path },
+          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
+          {
+            title: "ノートブック詳細",
+            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+          },
+        ]}
+      />
       <Title order={1}>{notebook.entries[0]?.notebook.title}</Title>
       <Flex gap={"md"}>
         <Button

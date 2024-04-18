@@ -1,5 +1,4 @@
 import {
-  Breadcrumbs,
   Button,
   Container,
   Title,
@@ -15,14 +14,20 @@ import {
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { DeleteNotebook } from "../_components/delete-notebook";
+import { DeleteNotebook } from "@/app/_components/delete-notebook";
 import dayjs from "dayjs";
+import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 
 export default async function Page() {
   const notebooks = await api.notebook.getList();
   return (
     <Container>
-      <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
+      <Breadcrumbs
+        items={[
+          { title: "Top", href: pagesPath.$url().path },
+          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
+        ]}
+      />
       <Title order={1}>ノートブック一覧</Title>
       <Button component={Link} href={pagesPath.notebooks.create.$url().path}>
         ノートブック作成
@@ -64,12 +69,3 @@ export default async function Page() {
     </Container>
   );
 }
-
-const breadcrumbs = [
-  { title: "Top", href: pagesPath.$url().path },
-  { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-].map((item, index) => (
-  <Link href={item.href} key={index}>
-    {item.title}
-  </Link>
-));

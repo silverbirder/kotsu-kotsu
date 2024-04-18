@@ -1,9 +1,9 @@
+import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { DeletePage } from "@/app/_components/delete-page";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
 import {
-  Breadcrumbs,
   Container,
   Title,
   Text,
@@ -25,29 +25,6 @@ type Props = {
   };
 };
 export default async function Page({ params: { notebookId, pageId } }: Props) {
-  const breadcrumbs = [
-    { title: "Top", href: pagesPath.$url().path },
-    { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-    {
-      title: "ノートブック詳細",
-      href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-    },
-    {
-      title: "ページ一覧",
-      href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
-    },
-    {
-      title: "ページ詳細",
-      href: pagesPath.notebooks
-        ._notebookId(notebookId)
-        .pages._pageId(pageId)
-        .$url().path,
-    },
-  ].map((item, index) => (
-    <Link href={item.href} key={index}>
-      {item.title}
-    </Link>
-  ));
   const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
   const page = await api.page.getDetail({ id: Number(pageId) });
   const { info, entries, select } = page;
@@ -76,7 +53,27 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   }, {} as Record<string, { label: string; values: string[] }>);
   return (
     <Container>
-      <Breadcrumbs>{breadcrumbs}</Breadcrumbs>
+      <Breadcrumbs
+        items={[
+          { title: "Top", href: pagesPath.$url().path },
+          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
+          {
+            title: "ノートブック詳細",
+            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+          },
+          {
+            title: "ページ一覧",
+            href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
+          },
+          {
+            title: "ページ詳細",
+            href: pagesPath.notebooks
+              ._notebookId(notebookId)
+              .pages._pageId(pageId)
+              .$url().path,
+          },
+        ]}
+      />
       <Title order={1}>{notebook?.title} ページ詳細</Title>
       <Flex gap="md">
         <Button
