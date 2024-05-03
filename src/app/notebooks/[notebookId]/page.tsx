@@ -76,6 +76,12 @@ export default async function Page({ params: { notebookId } }: Props) {
           >
             ページ一覧
           </Button>
+          <Button
+            component={Link}
+            href={pagesPath.notebooks._notebookId(notebookId).edit.$url().path}
+          >
+            ノートブック編集
+          </Button>
           <DeleteNotebook id={Number(notebookId)} />
         </Flex>
         {pageEntries.length === 0 ? (

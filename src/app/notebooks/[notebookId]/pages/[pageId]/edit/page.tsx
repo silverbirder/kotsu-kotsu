@@ -97,6 +97,13 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
                 .path,
             },
             {
+              title: "ページ詳細",
+              href: pagesPath.notebooks
+                ._notebookId(notebookId)
+                .pages._pageId(pageId)
+                .$url().path,
+            },
+            {
               title: "ページ編集",
               href: pagesPath.notebooks
                 ._notebookId(notebookId)

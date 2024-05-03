@@ -9,6 +9,9 @@ const buildSuffix = (url?: {query?: Record<string, string>, hash?: string}) => {
 export const pagesPath = {
   "notebooks": {
     _notebookId: (notebookId: string | number) => ({
+      "edit": {
+        $url: (url?: { hash?: string }) => ({ pathname: '/notebooks/[notebookId]/edit' as const, query: { notebookId }, hash: url?.hash, path: `/notebooks/${notebookId}/edit${buildSuffix(url)}` })
+      },
       "pages": {
         _pageId: (pageId: string | number) => ({
           "edit": {
