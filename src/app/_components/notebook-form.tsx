@@ -28,8 +28,9 @@ type Props = {
     title: string;
     items: Item[];
   };
+  notebookId?: number;
 };
-export function NotebookForm({ initialValues }: Props) {
+export function NotebookForm({ initialValues, notebookId }: Props) {
   const form = useForm<{ title: string; items: Item[] }>({
     initialValues: initialValues ?? {
       title: "",
@@ -55,35 +56,73 @@ export function NotebookForm({ initialValues }: Props) {
     },
   ];
   const create = api.notebook.create.useMutation();
+  const update = api.notebook.update.useMutation();
   const router = useRouter();
 
   const handleSubmit = useCallback(() => {
     const formValues = form.values;
-    create.mutate(
-      {
-        title: formValues.title,
-        entries: formValues.items,
-      },
-      {
-        onSuccess: (data) => {
-          notifications.show({
-            title: "作成完了",
-            message: "ノートブックが作成したよ！",
-          });
-          router.push(
-            pagesPath.notebooks._notebookId(data.notebookId ?? 0).$url().path
-          );
+    const isUpdate = !!notebookId;
+    if (isUpdate) {
+      update.mutate(
+        {
+          notebookId: notebookId,
+          title: formValues.title,
+          entries: formValues.items,
         },
-        onError: () => {
-          notifications.show({
-            title: "作成失敗",
-            message: "ノートブックに作成できなかったよ",
-            color: "red",
-          });
+        {
+          onSuccess: (data) => {
+            if (data.status === 200) {
+              notifications.show({
+                title: "更新完了",
+                message: "ノートブックが更新したよ！",
+              });
+              router.push(
+                pagesPath.notebooks._notebookId(notebookId).$url().path
+              );
+            } else {
+              notifications.show({
+                title: "更新失敗",
+                message: "ノートブックに作成できなかったよ",
+                color: "red",
+              });
+            }
+          },
+          onError: () => {
+            notifications.show({
+              title: "更新失敗",
+              message: "ノートブックに作成できなかったよ",
+              color: "red",
+            });
+          },
+        }
+      );
+    } else {
+      create.mutate(
+        {
+          title: formValues.title,
+          entries: formValues.items,
         },
-      }
-    );
-  }, [form, create, router]);
+        {
+          onSuccess: (data) => {
+            notifications.show({
+              title: "作成完了",
+              message: "ノートブックが作成したよ！",
+            });
+            router.push(
+              pagesPath.notebooks._notebookId(data.notebookId ?? 0).$url().path
+            );
+          },
+          onError: () => {
+            notifications.show({
+              title: "作成失敗",
+              message: "ノートブックに作成できなかったよ",
+              color: "red",
+            });
+          },
+        }
+      );
+    }
+  }, [form, create, update, router, notebookId]);
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>

@@ -57,7 +57,10 @@ export default async function Page({ params: { notebookId } }: Props) {
           ]}
         />
         <Title order={1}>ノートブック編集</Title>
-        <NotebookForm initialValues={initialValues} />
+        <NotebookForm
+          initialValues={initialValues}
+          notebookId={Number(notebookId)}
+        />
       </Stack>
     </Container>
   );

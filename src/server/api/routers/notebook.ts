@@ -113,6 +113,114 @@ export const notebookRouter = createTRPCRouter({
         notebookId,
       };
     }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        notebookId: z.number(),
+        title: z.string(),
+        entries: z.array(
+          z.object({
+            notebookEntryId: z.number().optional(),
+            label: z.string(),
+            valueType: z.enum(["string", "number", "boolean", "array"]),
+            array: z.array(
+              z.object({
+                notebookEntryValueArrayId: z.number().optional(),
+                value: z.string(),
+              })
+            ),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      let status = 500;
+      await ctx.db.transaction(async (tx) => {
+        const res = await tx
+          .select()
+          .from(notebooks)
+          .where(
+            and(
+              eq(notebooks.id, input.notebookId),
+              eq(notebooks.userId, ctx.session.user.id)
+            )
+          );
+        if (res.length === 0) {
+          status = 404;
+          return;
+        }
+        await tx
+          .update(notebooks)
+          .set({ title: input.title })
+          .where(
+            and(
+              eq(notebooks.id, input.notebookId),
+              eq(notebooks.userId, ctx.session.user.id)
+            )
+          );
+        // idが存在する->update、idが存在しない->insert
+        for (const entry of input.entries) {
+          if (entry.notebookEntryId) {
+            await tx
+              .update(notebookEntries)
+              .set({
+                label: entry.label,
+                valueType: entry.valueType,
+              })
+              .where(eq(notebookEntries.id, entry.notebookEntryId));
+            if (entry.valueType === "array") {
+              for (const ary of entry.array) {
+                if (ary.notebookEntryValueArrayId) {
+                  await tx
+                    .update(notebookEntryValueArraies)
+                    .set({
+                      value: ary.value,
+                    })
+                    .where(
+                      and(
+                        eq(
+                          notebookEntryValueArraies.id,
+                          ary.notebookEntryValueArrayId
+                        ),
+                        eq(
+                          notebookEntryValueArraies.notebookEntryId,
+                          entry.notebookEntryId
+                        )
+                      )
+                    );
+                } else {
+                  await tx.insert(notebookEntryValueArraies).values({
+                    notebookEntryId: entry.notebookEntryId,
+                    value: ary.value,
+                  });
+                }
+              }
+            }
+          } else {
+            const notebookEntryRes = await tx
+              .insert(notebookEntries)
+              .values({
+                notebookId: input.notebookId,
+                valueType: entry.valueType,
+                label: entry.label,
+              })
+              .returning();
+            const notebookEntryId = notebookEntryRes[0]?.id ?? 0;
+            if (entry.valueType === "array") {
+              for (const ary of entry.array) {
+                await tx.insert(notebookEntryValueArraies).values({
+                  notebookEntryId,
+                  value: ary.value,
+                });
+              }
+            }
+          }
+        }
+        // 削除する項目
+        status = 200;
+      });
+      return { status };
+    }),
   deleteOne: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
