@@ -6,6 +6,7 @@ import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 
 import { Inter } from "next/font/google";
@@ -42,8 +43,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <TRPCReactProvider>
           <MantineProvider>
-            <Notifications />
-            <AppShellLayout>{children}</AppShellLayout>
+            <ModalsProvider>
+              <Notifications />
+              <AppShellLayout>{children}</AppShellLayout>
+            </ModalsProvider>
           </MantineProvider>
         </TRPCReactProvider>
         <SpeedInsights />

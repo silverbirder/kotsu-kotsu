@@ -65,7 +65,11 @@ export const notebookRouter = createTRPCRouter({
           z.object({
             label: z.string(),
             valueType: z.enum(["string", "number", "boolean", "array"]),
-            array: z.array(z.string()),
+            array: z.array(
+              z.object({
+                value: z.string(),
+              })
+            ),
           })
         ),
       })
@@ -98,7 +102,7 @@ export const notebookRouter = createTRPCRouter({
               entry.array.map((x) => {
                 return {
                   notebookEntryId: notebookEntryRes[0]?.id ?? 0,
-                  value: x,
+                  value: x.value,
                 };
               })
             );
