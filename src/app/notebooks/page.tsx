@@ -61,6 +61,16 @@ export default async function Page() {
                       >
                         詳細
                       </Button>
+                      <Button
+                        component={Link}
+                        href={
+                          pagesPath.notebooks
+                            ._notebookId(notebook.id)
+                            .edit.$url().path
+                        }
+                      >
+                        編集
+                      </Button>
                       <DeleteNotebook id={notebook.id} text="削除" />
                     </Flex>
                   </TableTd>
