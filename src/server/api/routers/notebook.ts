@@ -158,6 +158,62 @@ export const notebookRouter = createTRPCRouter({
               eq(notebooks.userId, ctx.session.user.id)
             )
           );
+        // 削除する項目
+        const notebookEntriesRes = await tx
+          .select()
+          .from(notebookEntries)
+          .leftJoin(
+            notebookEntryValueArraies,
+            eq(notebookEntries.id, notebookEntryValueArraies.notebookEntryId)
+          )
+          .where(eq(notebookEntries.notebookId, input.notebookId));
+        const notebookEntryIds = unique(
+          notebookEntriesRes.map((x) => x.notebookEntry.id).flat()
+        ).filter((x) => {
+          for (const entry of input.entries) {
+            if (entry.notebookEntryId === x) {
+              return false;
+            }
+          }
+          return true;
+        });
+        const notebookEntryValueArrayIds = unique(
+          notebookEntriesRes
+            .filter((x) => x?.notebookEntryValueArray?.id !== undefined)
+            .map((x) => x?.notebookEntryValueArray!.id)
+            .flat()
+        ).filter((x) => {
+          for (const entry of input.entries) {
+            for (const ary of entry.array) {
+              if (ary.notebookEntryValueArrayId === x) {
+                return false;
+              }
+            }
+          }
+          return true;
+        });
+        if (notebookEntryIds.length > 0) {
+          await tx
+            .delete(pageEntries)
+            .where(inArray(pageEntries.notebookEntryId, notebookEntryIds));
+        }
+        if (notebookEntryValueArrayIds.length > 0) {
+          await tx
+            .delete(notebookEntryValueArraies)
+            .where(
+              inArray(notebookEntryValueArraies.id, notebookEntryValueArrayIds)
+            );
+        }
+        if (notebookEntryIds.length > 0) {
+          await tx
+            .delete(notebookEntries)
+            .where(
+              and(
+                inArray(notebookEntries.id, notebookEntryIds),
+                eq(notebookEntries.notebookId, input.notebookId)
+              )
+            );
+        }
         // idが存在する->update、idが存在しない->insert
         for (const entry of input.entries) {
           if (entry.notebookEntryId) {
@@ -216,7 +272,6 @@ export const notebookRouter = createTRPCRouter({
             }
           }
         }
-        // 削除する項目
         status = 200;
       });
       return { status };
