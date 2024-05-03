@@ -1,6 +1,7 @@
 import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { NotebookForm } from "@/app/_components/notebook-form";
 import { pagesPath } from "@/lib/$path";
+// import { api } from "@/trpc/server";
 import { Container, Stack, Title } from "@mantine/core";
 
 type Props = {
@@ -10,6 +11,10 @@ type Props = {
 };
 
 export default async function Page({ params: { notebookId } }: Props) {
+//   const { notebook } = await api.notebook.getInfo({ id: Number(notebookId) });
+//   const { entries, select } = await api.notebook.getDetail({
+//     id: Number(notebookId),
+//   });
   return (
     <Container>
       <Stack align="flex-start">
@@ -26,7 +31,8 @@ export default async function Page({ params: { notebookId } }: Props) {
             },
             {
               title: "ノートブック編集",
-              href: pagesPath.notebooks.create.$url().path,
+              href: pagesPath.notebooks._notebookId(notebookId).edit.$url()
+                .path,
             },
           ]}
         />
