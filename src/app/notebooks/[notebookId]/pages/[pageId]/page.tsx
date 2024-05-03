@@ -15,6 +15,7 @@ import {
   TableTr,
   Button,
   Flex,
+  Stack,
 } from "@mantine/core";
 import dayjs from "dayjs";
 
@@ -53,62 +54,68 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   }, {} as Record<string, { label: string; values: string[] }>);
   return (
     <Container>
-      <Breadcrumbs
-        items={[
-          { title: "Top", href: pagesPath.$url().path },
-          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-          {
-            title: "ノートブック詳細",
-            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-          },
-          {
-            title: "ページ一覧",
-            href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
-          },
-          {
-            title: "ページ詳細",
-            href: pagesPath.notebooks
-              ._notebookId(notebookId)
-              .pages._pageId(pageId)
-              .$url().path,
-          },
-        ]}
-      />
-      <Title order={1}>{notebook?.title} ページ詳細</Title>
-      <Flex gap="md">
-        <Button
-          component={Link}
-          href={
-            pagesPath.notebooks
-              ._notebookId(notebookId)
-              .pages._pageId(Number(pageId))
-              .edit.$url().path
-          }
-        >
-          ページ編集
-        </Button>
-        <DeletePage id={Number(pageId)} notebookId={Number(notebookId)} />
-      </Flex>
-      <Text>
-        作成日:{" "}
-        {info?.createdAt && dayjs(info?.createdAt).format("YYYY年M月D日")}
-      </Text>
-      <Table>
-        <TableThead>
-          <TableTr>
-            <TableTh>項目名</TableTh>
-            <TableTh>値</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {Object.keys(notebookEntryValues).map((key) => (
-            <TableTr key={key}>
-              <TableTd>{notebookEntryValues[key]?.label}</TableTd>
-              <TableTd>{notebookEntryValues[key]?.values.join(",")}</TableTd>
+      <Stack align="flex-start">
+        <Breadcrumbs
+          items={[
+            { title: "Top", href: pagesPath.$url().path },
+            {
+              title: "ノートブック一覧",
+              href: pagesPath.notebooks.$url().path,
+            },
+            {
+              title: "ノートブック詳細",
+              href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+            },
+            {
+              title: "ページ一覧",
+              href: pagesPath.notebooks._notebookId(notebookId).pages.$url()
+                .path,
+            },
+            {
+              title: "ページ詳細",
+              href: pagesPath.notebooks
+                ._notebookId(notebookId)
+                .pages._pageId(pageId)
+                .$url().path,
+            },
+          ]}
+        />
+        <Title order={1}>{notebook?.title} ページ詳細</Title>
+        <Flex gap="md">
+          <Button
+            component={Link}
+            href={
+              pagesPath.notebooks
+                ._notebookId(notebookId)
+                .pages._pageId(Number(pageId))
+                .edit.$url().path
+            }
+          >
+            ページ編集
+          </Button>
+          <DeletePage id={Number(pageId)} notebookId={Number(notebookId)} />
+        </Flex>
+        <Text>
+          作成日:{" "}
+          {info?.createdAt && dayjs(info?.createdAt).format("YYYY年M月D日")}
+        </Text>
+        <Table>
+          <TableThead>
+            <TableTr>
+              <TableTh>項目名</TableTh>
+              <TableTh>値</TableTh>
             </TableTr>
-          ))}
-        </TableTbody>
-      </Table>
+          </TableThead>
+          <TableTbody>
+            {Object.keys(notebookEntryValues).map((key) => (
+              <TableTr key={key}>
+                <TableTd>{notebookEntryValues[key]?.label}</TableTd>
+                <TableTd>{notebookEntryValues[key]?.values.join(",")}</TableTd>
+              </TableTr>
+            ))}
+          </TableTbody>
+        </Table>
+      </Stack>
     </Container>
   );
 }

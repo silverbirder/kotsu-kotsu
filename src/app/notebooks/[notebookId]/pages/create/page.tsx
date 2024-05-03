@@ -2,7 +2,7 @@ import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { PageForm } from "@/app/_components/page-form";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { Container, Title } from "@mantine/core";
+import { Container, Stack, Title } from "@mantine/core";
 
 type Props = {
   params: {
@@ -51,28 +51,34 @@ export default async function Page({ params: { notebookId } }: Props) {
   });
   return (
     <Container>
-      <Breadcrumbs
-        items={[
-          { title: "Top", href: pagesPath.$url().path },
-          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-          {
-            title: "ノートブック詳細",
-            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-          },
-          {
-            title: "ページ一覧",
-            href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
-          },
-          {
-            title: "ページ作成",
-            href: pagesPath.notebooks
-              ._notebookId(notebookId)
-              .pages.create.$url().path,
-          },
-        ]}
-      />
-      <Title order={1}>{res.entries[0]?.notebook.title} ページ作成</Title>
-      <PageForm entries={entries} notebookId={Number(notebookId)} />
+      <Stack align="flex-start">
+        <Breadcrumbs
+          items={[
+            { title: "Top", href: pagesPath.$url().path },
+            {
+              title: "ノートブック一覧",
+              href: pagesPath.notebooks.$url().path,
+            },
+            {
+              title: "ノートブック詳細",
+              href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+            },
+            {
+              title: "ページ一覧",
+              href: pagesPath.notebooks._notebookId(notebookId).pages.$url()
+                .path,
+            },
+            {
+              title: "ページ作成",
+              href: pagesPath.notebooks
+                ._notebookId(notebookId)
+                .pages.create.$url().path,
+            },
+          ]}
+        />
+        <Title order={1}>{res.entries[0]?.notebook.title} ページ作成</Title>
+        <PageForm entries={entries} notebookId={Number(notebookId)} />
+      </Stack>
     </Container>
   );
 }

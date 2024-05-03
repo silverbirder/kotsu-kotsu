@@ -4,7 +4,7 @@ import { DeleteNotebook } from "@/app/_components/delete-notebook";
 import { Link } from "@/app/_components/link";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { Button, Container, Title, Text, Flex } from "@mantine/core";
+import { Button, Container, Title, Text, Flex, Stack } from "@mantine/core";
 
 type Props = {
   params: {
@@ -54,31 +54,36 @@ export default async function Page({ params: { notebookId } }: Props) {
   }));
   return (
     <Container>
-      <Breadcrumbs
-        items={[
-          { title: "Top", href: pagesPath.$url().path },
-          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-          {
-            title: "ノートブック詳細",
-            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-          },
-        ]}
-      />
-      <Title order={1}>{notebook.entries[0]?.notebook.title}</Title>
-      <Flex gap={"md"}>
-        <Button
-          component={Link}
-          href={pagesPath.notebooks._notebookId(notebookId).pages.$url().path}
-        >
-          ページ一覧
-        </Button>
-        <DeleteNotebook id={Number(notebookId)} />
-      </Flex>
-      {pageEntries.length === 0 ? (
-        <Text>まだ1つも記録がありません</Text>
-      ) : (
-        <Chart notebookEntries={notebookEntries} pageEntries={pageEntries} />
-      )}
+      <Stack align="flex-start">
+        <Breadcrumbs
+          items={[
+            { title: "Top", href: pagesPath.$url().path },
+            {
+              title: "ノートブック一覧",
+              href: pagesPath.notebooks.$url().path,
+            },
+            {
+              title: "ノートブック詳細",
+              href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+            },
+          ]}
+        />
+        <Title order={1}>{notebook.entries[0]?.notebook.title}</Title>
+        <Flex gap={"md"}>
+          <Button
+            component={Link}
+            href={pagesPath.notebooks._notebookId(notebookId).pages.$url().path}
+          >
+            ページ一覧
+          </Button>
+          <DeleteNotebook id={Number(notebookId)} />
+        </Flex>
+        {pageEntries.length === 0 ? (
+          <Text>まだ1つも記録がありません</Text>
+        ) : (
+          <Chart notebookEntries={notebookEntries} pageEntries={pageEntries} />
+        )}
+      </Stack>
     </Container>
   );
 }

@@ -2,7 +2,7 @@ import { Breadcrumbs } from "@/app/_components/breadcrumbs";
 import { PageForm } from "@/app/_components/page-form";
 import { pagesPath } from "@/lib/$path";
 import { api } from "@/trpc/server";
-import { Container, Title } from "@mantine/core";
+import { Container, Stack, Title } from "@mantine/core";
 
 type Props = {
   params: {
@@ -79,34 +79,40 @@ export default async function Page({ params: { notebookId, pageId } }: Props) {
   }, [] as typeof entries);
   return (
     <Container>
-      <Breadcrumbs
-        items={[
-          { title: "Top", href: pagesPath.$url().path },
-          { title: "ノートブック一覧", href: pagesPath.notebooks.$url().path },
-          {
-            title: "ノートブック詳細",
-            href: pagesPath.notebooks._notebookId(notebookId).$url().path,
-          },
-          {
-            title: "ページ一覧",
-            href: pagesPath.notebooks._notebookId(notebookId).pages.$url().path,
-          },
-          {
-            title: "ページ編集",
-            href: pagesPath.notebooks
-              ._notebookId(notebookId)
-              .pages._pageId(pageId)
-              .edit.$url().path,
-          },
-        ]}
-      />
-      <Title order={1}>{notebook?.title} ページ編集</Title>
-      <PageForm
-        entries={entries2}
-        notebookId={Number(notebookId)}
-        createdAt={info?.createdAt}
-        pageId={Number(pageId)}
-      />
+      <Stack align="flex-start">
+        <Breadcrumbs
+          items={[
+            { title: "Top", href: pagesPath.$url().path },
+            {
+              title: "ノートブック一覧",
+              href: pagesPath.notebooks.$url().path,
+            },
+            {
+              title: "ノートブック詳細",
+              href: pagesPath.notebooks._notebookId(notebookId).$url().path,
+            },
+            {
+              title: "ページ一覧",
+              href: pagesPath.notebooks._notebookId(notebookId).pages.$url()
+                .path,
+            },
+            {
+              title: "ページ編集",
+              href: pagesPath.notebooks
+                ._notebookId(notebookId)
+                .pages._pageId(pageId)
+                .edit.$url().path,
+            },
+          ]}
+        />
+        <Title order={1}>{notebook?.title} ページ編集</Title>
+        <PageForm
+          entries={entries2}
+          notebookId={Number(notebookId)}
+          createdAt={info?.createdAt}
+          pageId={Number(pageId)}
+        />
+      </Stack>
     </Container>
   );
 }
