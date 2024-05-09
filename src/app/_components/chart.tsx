@@ -5,11 +5,14 @@ import {
   Flex,
   Checkbox,
   CheckboxGroup,
-  Group,
   Card,
+  Stack,
+  Text,
+  Fieldset,
 } from "@mantine/core";
 import { AreaChart } from "@mantine/charts";
 import { useMemo, useState } from "react";
+import { DatePickerInput } from "@mantine/dates";
 
 type Props = {
   notebookEntries: {
@@ -61,7 +64,11 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   const [aggregationPeriod, setAggregationPeriod] = useState(
     aggregationPeriods[0]
   );
-  const aggregationMethods = [{ value: "sum", label: "合計" }];
+  const aggregationMethods = [
+    { value: "sum", label: "合計" },
+    { value: "sum", label: "最大" },
+    { value: "sum", label: "最小" },
+  ];
   const [notebookEntriesWithEtc, setNotebookEntriesWithEtc] = useState(
     notebookEntries.map((entry) => ({
       ...entry,
@@ -241,109 +248,147 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
     });
   }, [data, uniqNames]);
   return (
-    <Flex direction={"column"}>
+    <Stack gap={0}>
+      <Flex direction={{ base: "column", md: "row" }}>
+        <Card>
+          <AreaChart
+            w={{ base: 360, md: 660 }}
+            h={{ base: 360, md: 360 }}
+            data={normalizedData}
+            dataKey="date"
+            series={series}
+            curveType="linear"
+          />
+        </Card>
+        <Card>
+          <Fieldset legend="グラフ設定">
+            <Stack gap={0}>
+              <Text size="sm" fw={500}>
+                集計範囲
+              </Text>
+              <Flex gap={"sm"}>
+                <DatePickerInput label="開始" value={new Date()} />
+                <DatePickerInput label="終了" value={new Date()} />
+              </Flex>
+            </Stack>
+            <Stack gap={0}>
+              <Text size="sm" fw={500}>
+                集計単位
+              </Text>
+              <SegmentedControl
+                value={aggregationPeriod?.value}
+                onChange={(value) => {
+                  setAggregationPeriod(
+                    aggregationPeriods.find((x) => x.value === value)
+                  );
+                }}
+                data={aggregationPeriods}
+              />
+            </Stack>
+          </Fieldset>
+        </Card>
+      </Flex>
       <Card>
-        <SegmentedControl
-          value={aggregationPeriod?.value}
-          onChange={(value) => {
-            setAggregationPeriod(
-              aggregationPeriods.find((x) => x.value === value)
-            );
-          }}
-          data={aggregationPeriods}
-        />
-        <CheckboxGroup
-          defaultValue={notebookEntriesWithEtc
-            .filter((x) => x.selected)
-            .map((x) => x.notebookEntryId.toString())}
-          onChange={(value) => {
-            setNotebookEntriesWithEtc(
-              notebookEntriesWithEtc.map((x) => {
-                return {
-                  ...x,
-                  selected: value.includes(x.notebookEntryId.toString()),
-                };
-              })
-            );
-          }}
-        >
-          <Group mt="xs">
-            {notebookEntriesWithEtc.map((entry, index) => {
-              const selectable = [
-                {
-                  value: "0",
-                  label: "なし",
-                },
-                ...notebookEntries
-                  .filter(
-                    (notebookEntry) =>
-                      notebookEntry.notebookEntryId !== entry.notebookEntryId
-                  )
-                  .map((x) => ({
-                    value: x.notebookEntryId.toString(),
-                    label: x.label,
-                  })),
-              ];
-              return (
-                <Flex direction={"column"} key={index}>
-                  <Checkbox
-                    value={entry.notebookEntryId.toString()}
-                    label={entry.label}
-                    key={index}
-                  />
-                  <SegmentedControl
-                    value={entry.aggregationMethod?.value}
-                    onChange={(value) => {
-                      const aggregationMethod = aggregationMethods.find(
-                        (x) => x.value === value
-                      );
-                      if (!aggregationMethod) return;
-                      const newEntries = [...notebookEntriesWithEtc];
-                      const newEntry = { ...entry };
-                      newEntry.aggregationMethod = aggregationMethod;
-                      newEntries[index] = newEntry;
-                      setNotebookEntriesWithEtc(newEntries);
-                    }}
-                    data={aggregationMethods}
-                  />
-                  <SegmentedControl
-                    value={
-                      entry.category
-                        ? entry.category.notebookEntryId.toString()
-                        : "0"
-                    }
-                    onChange={(value) => {
-                      const category = notebookEntries.find(
-                        (x) => x.notebookEntryId === Number(value)
-                      );
-                      const newEntries = [...notebookEntriesWithEtc];
-                      const newEntry = { ...entry };
-                      if (!category) {
-                        newEntry.category = null;
-                      } else {
-                        newEntry.category = category;
-                      }
-                      newEntries[index] = newEntry;
-                      setNotebookEntriesWithEtc(newEntries);
-                    }}
-                    data={selectable}
-                  />
-                </Flex>
+        <Fieldset legend="表示する項目">
+          <CheckboxGroup
+            defaultValue={notebookEntriesWithEtc
+              .filter((x) => x.selected)
+              .map((x) => x.notebookEntryId.toString())}
+            onChange={(value) => {
+              setNotebookEntriesWithEtc(
+                notebookEntriesWithEtc.map((x) => {
+                  return {
+                    ...x,
+                    selected: value.includes(x.notebookEntryId.toString()),
+                  };
+                })
               );
-            })}
-          </Group>
-        </CheckboxGroup>
+            }}
+          >
+            <Flex direction={{ base: "column", md: "row" }} gap={"sm"}>
+              {notebookEntriesWithEtc.map((entry, index) => {
+                const selectable = [
+                  {
+                    value: "0",
+                    label: "なし",
+                  },
+                  ...notebookEntries
+                    .filter(
+                      (notebookEntry) =>
+                        notebookEntry.notebookEntryId !==
+                          entry.notebookEntryId &&
+                        notebookEntry.valueType === "array"
+                    )
+                    .map((x) => ({
+                      value: x.notebookEntryId.toString(),
+                      label: x.label,
+                    })),
+                ];
+                return (
+                  <Stack gap={0} key={index}>
+                    <Checkbox
+                      value={entry.notebookEntryId.toString()}
+                      label={entry.label}
+                    />
+                    <Card withBorder>
+                      <Flex direction={"column"} key={index}>
+                        <Stack gap={0}>
+                          <Text size="sm" fw={500}>
+                            計算方法
+                          </Text>
+                          <SegmentedControl
+                            value={entry.aggregationMethod?.value}
+                            onChange={(value) => {
+                              const aggregationMethod = aggregationMethods.find(
+                                (x) => x.value === value
+                              );
+                              if (!aggregationMethod) return;
+                              const newEntries = [...notebookEntriesWithEtc];
+                              const newEntry = { ...entry };
+                              newEntry.aggregationMethod = aggregationMethod;
+                              newEntries[index] = newEntry;
+                              setNotebookEntriesWithEtc(newEntries);
+                            }}
+                            data={aggregationMethods}
+                          />
+                        </Stack>
+                        <Stack gap={0}>
+                          <Text size="sm" fw={500}>
+                            カテゴリ分割
+                          </Text>
+                          <SegmentedControl
+                            value={
+                              entry.category
+                                ? entry.category.notebookEntryId.toString()
+                                : "0"
+                            }
+                            onChange={(value) => {
+                              const category = notebookEntries.find(
+                                (x) => x.notebookEntryId === Number(value)
+                              );
+                              const newEntries = [...notebookEntriesWithEtc];
+                              const newEntry = { ...entry };
+                              if (!category) {
+                                newEntry.category = null;
+                              } else {
+                                newEntry.category = category;
+                              }
+                              newEntries[index] = newEntry;
+                              setNotebookEntriesWithEtc(newEntries);
+                            }}
+                            data={selectable}
+                          />
+                        </Stack>
+                      </Flex>
+                    </Card>
+                  </Stack>
+                );
+              })}
+            </Flex>
+          </CheckboxGroup>
+        </Fieldset>
       </Card>
-      <Card>
-        <AreaChart
-          h={300}
-          data={normalizedData}
-          dataKey="date"
-          series={series}
-          curveType="linear"
-        />
-      </Card>
-    </Flex>
+    </Stack>
   );
 }
 
