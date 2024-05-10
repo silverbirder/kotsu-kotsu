@@ -69,7 +69,7 @@ export default async function Page({ params: { notebookId } }: Props) {
           ]}
         />
         <Title order={1}>{notebook.entries[0]?.notebook.title}</Title>
-        <Flex gap={"md"}>
+        <Flex gap={"md"} wrap={"wrap"}>
           <Button
             component={Link}
             href={pagesPath.notebooks._notebookId(notebookId).pages.$url().path}

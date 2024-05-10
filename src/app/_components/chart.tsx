@@ -1,5 +1,6 @@
 "use client";
 
+import 'dayjs/locale/ja';
 import {
   SegmentedControl,
   Flex,
@@ -47,6 +48,16 @@ const colors = [
 ];
 
 export function Chart({ notebookEntries, pageEntries }: Props) {
+  const initAggregationStartPeriod = new Date();
+  const [aggregationStartPeriod, setAggregationStartPeriod] = useState(
+    initAggregationStartPeriod
+  );
+  const initAggregationEndPeriod = new Date();
+  initAggregationEndPeriod.setDate(initAggregationEndPeriod.getDate() + 7);
+  const [aggregationEndPeriod, setAggregationEndPeriod] = useState(
+    initAggregationEndPeriod
+  );
+
   const aggregationPeriods = [
     {
       value: "day",
@@ -66,8 +77,8 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   );
   const aggregationMethods = [
     { value: "sum", label: "合計" },
-    { value: "sum", label: "最大" },
-    { value: "sum", label: "最小" },
+    { value: "max", label: "最大" },
+    { value: "min", label: "最小" },
   ];
   const [notebookEntriesWithEtc, setNotebookEntriesWithEtc] = useState(
     notebookEntries.map((entry) => ({
@@ -179,12 +190,9 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   }, [notebookEntriesWithEtc, pageEntries]);
 
   const data = useMemo(() => {
-    const dates = categories.map((x) =>
-      new Date(x.pageEntry.createdAt).getTime()
-    );
-    const startDate = new Date(Math.min(...dates));
     const dateRange: Date[] = generateDateRange(
-      startDate,
+      aggregationStartPeriod,
+      aggregationEndPeriod,
       aggregationPeriod?.value as "day" | "week" | "month"
     );
 
@@ -199,7 +207,6 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
           aggregationPeriod?.value as "day" | "week" | "month"
         );
       }
-
       const series: Record<string, number | string> = {};
       categories.forEach((category) => {
         const categoryDate = new Date(category.pageEntry.createdAt);
@@ -208,16 +215,28 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
           categoryDate < nextDateLabel
         ) {
           const prevValue = (series[category.categoryName] as number) ?? 0;
-          series[category.categoryName] = prevValue + category.value;
+          const aggregationMethod =
+            category.notebookEntry.aggregationMethod?.value;
+          if (aggregationMethod === "sum") {
+            series[category.categoryName] = prevValue + category.value;
+          } else if (aggregationMethod === "max") {
+            series[category.categoryName] = Math.max(prevValue, category.value);
+          } else if (aggregationMethod === "min") {
+            series[category.categoryName] = Math.min(prevValue, category.value);
+          }
         }
       });
-
       series.date = dateLabel
         .toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
         .replace(" ", "");
       return series;
     });
-  }, [aggregationPeriod, categories]);
+  }, [
+    aggregationStartPeriod,
+    aggregationEndPeriod,
+    aggregationPeriod,
+    categories,
+  ]);
 
   const uniqNames = useMemo(() => {
     return unique(data.map((d) => Object.keys(d)).flat()).filter(
@@ -252,8 +271,8 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
       <Flex direction={{ base: "column", md: "row" }}>
         <Card>
           <AreaChart
-            w={{ base: 360, md: 660 }}
-            h={{ base: 360, md: 360 }}
+            w={{ base: 300, md: 660 }}
+            h={{ base: 300, md: 360 }}
             data={normalizedData}
             dataKey="date"
             series={series}
@@ -267,8 +286,20 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
                 集計範囲
               </Text>
               <Flex gap={"sm"}>
-                <DatePickerInput label="開始" value={new Date()} />
-                <DatePickerInput label="終了" value={new Date()} />
+                <DatePickerInput
+                  label="開始"
+                  value={aggregationStartPeriod}
+                  onChange={(v) => v && setAggregationStartPeriod(v)}
+                  valueFormat="YYYY年M月D日"
+                  locale="ja"
+                />
+                <DatePickerInput
+                  label="終了"
+                  value={aggregationEndPeriod}
+                  onChange={(v) => v && setAggregationEndPeriod(v)}
+                  valueFormat="YYYY年M月D日"
+                  locale="ja"
+                />
               </Flex>
             </Stack>
             <Stack gap={0}>
@@ -414,24 +445,19 @@ const addDate = (
 
 const generateDateRange = (
   startDate: Date,
+  endDate: Date,
   period: "day" | "week" | "month"
 ): Date[] => {
-  let current: Date = startDate;
+  const current: Date = new Date(startDate);
   const range: Date[] = [];
-  if (period === "day") {
-    for (let i = 0; i < 7; i++) {
-      range.push(current);
-      current = addDate(current, 1, "day");
-    }
-  } else if (period === "week") {
-    for (let i = 0; i < 5; i++) {
-      range.push(current);
-      current = addDate(current, 1, "week");
-    }
-  } else if (period === "month") {
-    for (let i = 0; i < 12; i++) {
-      range.push(current);
-      current = addDate(current, 1, "month");
+  while (current <= endDate && current >= startDate) {
+    range.push(new Date(current));
+    if (period === "day") {
+      current.setDate(current.getDate() + 1);
+    } else if (period === "week") {
+      current.setDate(current.getDate() + 7);
+    } else if (period === "month") {
+      current.setMonth(current.getMonth() + 1);
     }
   }
   return range;
