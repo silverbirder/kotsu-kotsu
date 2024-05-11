@@ -11,7 +11,7 @@ import {
   Text,
   Fieldset,
 } from "@mantine/core";
-import { AreaChart } from "@mantine/charts";
+import { AreaChart, BarChart, LineChart } from "@mantine/charts";
 import { useMemo, useState } from "react";
 import { DatePickerInput } from "@mantine/dates";
 
@@ -29,6 +29,7 @@ type Props = {
     notebookEntryId: number;
     pageId: number;
   }[];
+  chartType: "area" | "bar" | "line";
 };
 
 const colors = [
@@ -47,7 +48,7 @@ const colors = [
   "gray",
 ];
 
-export function Chart({ notebookEntries, pageEntries }: Props) {
+export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
   const initAggregationStartPeriod = new Date();
   const [aggregationStartPeriod, setAggregationStartPeriod] = useState(
     initAggregationStartPeriod
@@ -269,19 +270,50 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   return (
     <Stack gap={0}>
       <Flex direction={{ base: "column", md: "row" }}>
-        <AreaChart
-          w={{ base: 330, md: 660 }}
-          h={{ base: 330, md: 360 }}
-          yAxisProps={{
-            padding: {
-              top: 10,
-            },
-          }}
-          data={normalizedData}
-          dataKey="date"
-          series={series}
-          curveType="linear"
-        />
+        {chartType === "area" && (
+          <AreaChart
+            w={{ base: 330, md: 660 }}
+            h={{ base: 330, md: 360 }}
+            yAxisProps={{
+              padding: {
+                top: 10,
+              },
+            }}
+            data={normalizedData}
+            dataKey="date"
+            series={series}
+            curveType="linear"
+          />
+        )}
+        {chartType === "bar" && (
+          <BarChart
+            w={{ base: 330, md: 660 }}
+            h={{ base: 330, md: 360 }}
+            yAxisProps={{
+              padding: {
+                top: 10,
+              },
+            }}
+            data={normalizedData}
+            dataKey="date"
+            series={series}
+          />
+        )}
+        {chartType === "line" && (
+          <LineChart
+            w={{ base: 330, md: 660 }}
+            h={{ base: 330, md: 360 }}
+            yAxisProps={{
+              padding: {
+                top: 10,
+              },
+            }}
+            data={normalizedData}
+            dataKey="date"
+            series={series}
+            curveType="linear"
+          />
+        )}
         <Card>
           <Fieldset legend="グラフ設定">
             <Stack gap={0}>

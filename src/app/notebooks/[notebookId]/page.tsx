@@ -87,7 +87,23 @@ export default async function Page({ params: { notebookId } }: Props) {
         {pageEntries.length === 0 ? (
           <Text>まだ1つも記録がありません</Text>
         ) : (
-          <Chart notebookEntries={notebookEntries} pageEntries={pageEntries} />
+          <>
+            <Chart
+              notebookEntries={notebookEntries}
+              pageEntries={pageEntries}
+              chartType="area"
+            />
+            <Chart
+              notebookEntries={notebookEntries}
+              pageEntries={pageEntries}
+              chartType="bar"
+            />
+            <Chart
+              notebookEntries={notebookEntries}
+              pageEntries={pageEntries}
+              chartType="line"
+            />
+          </>
         )}
       </Stack>
     </Container>
