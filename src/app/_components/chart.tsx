@@ -1,6 +1,6 @@
 "use client";
 
-import 'dayjs/locale/ja';
+import "dayjs/locale/ja";
 import {
   SegmentedControl,
   Flex,
@@ -269,16 +269,19 @@ export function Chart({ notebookEntries, pageEntries }: Props) {
   return (
     <Stack gap={0}>
       <Flex direction={{ base: "column", md: "row" }}>
-        <Card>
-          <AreaChart
-            w={{ base: 300, md: 660 }}
-            h={{ base: 300, md: 360 }}
-            data={normalizedData}
-            dataKey="date"
-            series={series}
-            curveType="linear"
-          />
-        </Card>
+        <AreaChart
+          w={{ base: 330, md: 660 }}
+          h={{ base: 330, md: 360 }}
+          yAxisProps={{
+            padding: {
+              top: 10,
+            },
+          }}
+          data={normalizedData}
+          dataKey="date"
+          series={series}
+          curveType="linear"
+        />
         <Card>
           <Fieldset legend="グラフ設定">
             <Stack gap={0}>
