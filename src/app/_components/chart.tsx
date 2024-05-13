@@ -17,6 +17,7 @@ import {
   DonutChart,
   LineChart,
   PieChart,
+  RadarChart,
 } from "@mantine/charts";
 import { useMemo, useState } from "react";
 import { DatePickerInput } from "@mantine/dates";
@@ -35,7 +36,7 @@ type Props = {
     notebookEntryId: number;
     pageId: number;
   }[];
-  chartType: "area" | "bar" | "line" | "donut" | "pie";
+  chartType: "area" | "bar" | "line" | "donut" | "pie" | "radar";
 };
 
 const colors = [
@@ -370,6 +371,17 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
             withLabels
             withTooltip
             tooltipDataSource="segment"
+          />
+        )}
+        {chartType === "radar" && (
+          <RadarChart
+            w={{ base: 340, md: 660 }}
+            data={donutsdata}
+            dataKey="name"
+            series={[{ name: "value", color: "blue.6", opacity: 0.2 }]}
+            withPolarGrid
+            withPolarAngleAxis
+            withPolarRadiusAxis
           />
         )}
         <Card>

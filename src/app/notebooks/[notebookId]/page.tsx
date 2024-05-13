@@ -113,6 +113,11 @@ export default async function Page({ params: { notebookId } }: Props) {
               pageEntries={pageEntries}
               chartType="pie"
             />
+            <Chart
+              notebookEntries={notebookEntries}
+              pageEntries={pageEntries}
+              chartType="radar"
+            />
           </>
         )}
       </Stack>
