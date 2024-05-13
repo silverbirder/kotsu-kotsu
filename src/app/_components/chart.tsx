@@ -11,7 +11,13 @@ import {
   Text,
   Fieldset,
 } from "@mantine/core";
-import { AreaChart, BarChart, LineChart } from "@mantine/charts";
+import {
+  AreaChart,
+  BarChart,
+  DonutChart,
+  LineChart,
+  PieChart,
+} from "@mantine/charts";
 import { useMemo, useState } from "react";
 import { DatePickerInput } from "@mantine/dates";
 
@@ -29,7 +35,7 @@ type Props = {
     notebookEntryId: number;
     pageId: number;
   }[];
-  chartType: "area" | "bar" | "line";
+  chartType: "area" | "bar" | "line" | "donut" | "pie";
 };
 
 const colors = [
@@ -267,6 +273,19 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
       return normalizedEntry;
     });
   }, [data, uniqNames]);
+  const donutsdata = useMemo(() => {
+    return series.map((x) => {
+      const result = {
+        name: x.name,
+        color: x.color,
+        value: data
+          .map((d) => d[x.name] as number)
+          .filter((x) => !isNaN(x))
+          .reduce((a, b) => a + b, 0),
+      };
+      return result;
+    });
+  }, [series, data]);
   return (
     <Stack gap={0}>
       <Flex direction={{ base: "column", md: "row" }}>
@@ -289,6 +308,7 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
             dataKey="date"
             series={series}
             curveType="linear"
+            withLegend
           />
         )}
         {chartType === "bar" && (
@@ -309,6 +329,7 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
             data={normalizedData}
             dataKey="date"
             series={series}
+            withLegend
           />
         )}
         {chartType === "line" && (
@@ -326,11 +347,29 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
                 right: 10,
               },
             }}
-            mr="lg"
             data={normalizedData}
             dataKey="date"
             series={series}
             curveType="linear"
+            withLegend
+          />
+        )}
+        {chartType === "donut" && (
+          <DonutChart
+            w={{ base: 300, md: 660 }}
+            data={donutsdata}
+            withLabels
+            withTooltip
+            tooltipDataSource="segment"
+          />
+        )}
+        {chartType === "pie" && (
+          <PieChart
+            w={{ base: 300, md: 660 }}
+            data={donutsdata}
+            withLabels
+            withTooltip
+            tooltipDataSource="segment"
           />
         )}
         <Card>
@@ -439,7 +478,7 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
                         </Stack>
                         <Stack gap={0}>
                           <Text size="sm" fw={500}>
-                            カテゴリ分割
+                            カテゴリ
                           </Text>
                           <SegmentedControl
                             value={
