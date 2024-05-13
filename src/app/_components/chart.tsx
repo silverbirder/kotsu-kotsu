@@ -50,11 +50,11 @@ const colors = [
 
 export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
   const initAggregationStartPeriod = new Date();
+  initAggregationStartPeriod.setDate(initAggregationStartPeriod.getDate() - 7);
   const [aggregationStartPeriod, setAggregationStartPeriod] = useState(
     initAggregationStartPeriod
   );
   const initAggregationEndPeriod = new Date();
-  initAggregationEndPeriod.setDate(initAggregationEndPeriod.getDate() + 7);
   const [aggregationEndPeriod, setAggregationEndPeriod] = useState(
     initAggregationEndPeriod
   );
@@ -272,11 +272,17 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
       <Flex direction={{ base: "column", md: "row" }}>
         {chartType === "area" && (
           <AreaChart
-            w={{ base: 330, md: 660 }}
-            h={{ base: 330, md: 360 }}
+            w={{ base: 300, md: 660 }}
+            h={{ base: 300, md: 360 }}
             yAxisProps={{
               padding: {
                 top: 10,
+              },
+            }}
+            xAxisProps={{
+              padding: {
+                left: 10,
+                right: 10,
               },
             }}
             data={normalizedData}
@@ -287,11 +293,17 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
         )}
         {chartType === "bar" && (
           <BarChart
-            w={{ base: 330, md: 660 }}
-            h={{ base: 330, md: 360 }}
+            w={{ base: 300, md: 660 }}
+            h={{ base: 300, md: 360 }}
             yAxisProps={{
               padding: {
                 top: 10,
+              },
+            }}
+            xAxisProps={{
+              padding: {
+                left: 10,
+                right: 10,
               },
             }}
             data={normalizedData}
@@ -301,13 +313,20 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
         )}
         {chartType === "line" && (
           <LineChart
-            w={{ base: 330, md: 660 }}
-            h={{ base: 330, md: 360 }}
+            w={{ base: 300, md: 660 }}
+            h={{ base: 300, md: 360 }}
             yAxisProps={{
               padding: {
                 top: 10,
               },
             }}
+            xAxisProps={{
+              padding: {
+                left: 10,
+                right: 10,
+              },
+            }}
+            mr="lg"
             data={normalizedData}
             dataKey="date"
             series={series}
