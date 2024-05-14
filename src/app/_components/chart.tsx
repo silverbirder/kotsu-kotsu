@@ -58,10 +58,16 @@ const colors = [
 export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
   const initAggregationStartPeriod = new Date();
   initAggregationStartPeriod.setDate(initAggregationStartPeriod.getDate() - 7);
+  initAggregationStartPeriod.setHours(0);
+  initAggregationStartPeriod.setMinutes(0);
+  initAggregationStartPeriod.setSeconds(0);
   const [aggregationStartPeriod, setAggregationStartPeriod] = useState(
     initAggregationStartPeriod
   );
   const initAggregationEndPeriod = new Date();
+  initAggregationEndPeriod.setHours(23);
+  initAggregationEndPeriod.setMinutes(59);
+  initAggregationEndPeriod.setSeconds(59);
   const [aggregationEndPeriod, setAggregationEndPeriod] = useState(
     initAggregationEndPeriod
   );
@@ -394,14 +400,26 @@ export function Chart({ chartType, notebookEntries, pageEntries }: Props) {
                 <DatePickerInput
                   label="開始"
                   value={aggregationStartPeriod}
-                  onChange={(v) => v && setAggregationStartPeriod(v)}
+                  onChange={(v) => {
+                    if (!v) return;
+                    v.setHours(0);
+                    v.setMinutes(0);
+                    v.setSeconds(0);
+                    setAggregationStartPeriod(v);
+                  }}
                   valueFormat="YYYY年M月D日"
                   locale="ja"
                 />
                 <DatePickerInput
                   label="終了"
                   value={aggregationEndPeriod}
-                  onChange={(v) => v && setAggregationEndPeriod(v)}
+                  onChange={(v) => {
+                    if (!v) return;
+                    v.setHours(23);
+                    v.setMinutes(59);
+                    v.setSeconds(59);
+                    setAggregationEndPeriod(v);
+                  }}
                   valueFormat="YYYY年M月D日"
                   locale="ja"
                 />
@@ -554,6 +572,9 @@ const generateDateRange = (
   period: "day" | "week" | "month"
 ): Date[] => {
   const current: Date = new Date(startDate);
+  current.setHours(0);
+  current.setMinutes(0);
+  current.setSeconds(0);
   const range: Date[] = [];
   while (current <= endDate && current >= startDate) {
     range.push(new Date(current));
