@@ -15,7 +15,6 @@ interface ChartDisplayItemProps {
   entry: Props["notebookEntriesWithEtc"][number];
   index: number;
   notebookEntries: Props["notebookEntries"];
-  aggregationMethods: { value: string; label: string }[];
   setNotebookEntriesWithEtc: (entries: Props["notebookEntriesWithEtc"]) => void;
   notebookEntriesWithEtc: Props["notebookEntriesWithEtc"];
 }
@@ -24,10 +23,17 @@ const ChartDisplayItem: React.FC<ChartDisplayItemProps> = ({
   entry,
   index,
   notebookEntries,
-  aggregationMethods,
   setNotebookEntriesWithEtc,
   notebookEntriesWithEtc,
 }) => {
+  const aggregationMethods = useMemo(
+    () => [
+      { value: "sum", label: "合計" },
+      { value: "max", label: "最大" },
+      { value: "min", label: "最小" },
+    ],
+    []
+  );
   const handleAggregationMethodChange = useCallback(
     (value: string) => {
       const aggregationMethod = aggregationMethods.find(

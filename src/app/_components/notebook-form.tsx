@@ -52,7 +52,7 @@ export function NotebookForm({ initialValues, notebookId }: Props) {
     },
     {
       value: "array",
-      label: "複数値",
+      label: "カテゴリ",
     },
   ];
   const create = api.notebook.create.useMutation();

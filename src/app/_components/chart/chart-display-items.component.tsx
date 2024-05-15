@@ -15,15 +15,6 @@ const ChartDisplayItems: React.FC<
   notebookEntriesWithEtc,
   setNotebookEntriesWithEtc,
 }) => {
-  const aggregationMethods = useMemo(
-    () => [
-      { value: "sum", label: "合計" },
-      { value: "max", label: "最大" },
-      { value: "min", label: "最小" },
-    ],
-    []
-  );
-
   const handleCheckboxGroupChange = useCallback(
     (value: string[]) => {
       setNotebookEntriesWithEtc(
@@ -58,7 +49,6 @@ const ChartDisplayItems: React.FC<
                 entry={entry}
                 index={index}
                 notebookEntries={notebookEntries}
-                aggregationMethods={aggregationMethods}
                 setNotebookEntriesWithEtc={setNotebookEntriesWithEtc}
                 notebookEntriesWithEtc={notebookEntriesWithEtc}
               />
