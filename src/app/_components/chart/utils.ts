@@ -11,12 +11,7 @@ type NotebookEntry = {
   }[];
 };
 
-type NotebookEntryWithEtc = {
-  notebookId: number;
-  notebookEntryId: number;
-  label: string;
-  valueType: "string" | "number" | "boolean" | "array";
-  select: { id: number; value: string }[];
+type NotebookEntryWithEtc = NotebookEntry & {
   selected: boolean;
   aggregationMethod: { value: string; label: string };
   category: null | NotebookEntry;

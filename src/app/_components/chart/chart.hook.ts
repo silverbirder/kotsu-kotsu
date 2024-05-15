@@ -167,8 +167,12 @@ const getData = (
           series[category.categoryName] = prevValue + category.value;
         } else if (aggregationMethod === "max") {
           series[category.categoryName] = Math.max(prevValue, category.value);
-        } else if (aggregationMethod === "min") {
-          series[category.categoryName] = Math.min(prevValue, category.value);
+        } else if (aggregationMethod === "avg") {
+          const count =
+            (series[`${category.categoryName}_count`] as number) ?? 0;
+          series[category.categoryName] =
+            (prevValue * count + category.value) / (count + 1);
+          series[`${category.categoryName}_count`] = count + 1;
         }
       }
     });
@@ -178,7 +182,7 @@ const getData = (
 
 const getUniqNames = (data: DataItem[]): string[] => {
   return unique(data.map((d) => Object.keys(d)).flat()).filter(
-    (d) => d !== "date"
+    (d) => d !== "date" && !d.endsWith("_count")
   );
 };
 

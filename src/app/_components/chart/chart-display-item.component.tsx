@@ -30,7 +30,7 @@ const ChartDisplayItem: React.FC<ChartDisplayItemProps> = ({
     () => [
       { value: "sum", label: "合計" },
       { value: "max", label: "最大" },
-      { value: "min", label: "最小" },
+      { value: "avg", label: "平均" },
     ],
     []
   );
