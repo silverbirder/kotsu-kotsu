@@ -5,6 +5,7 @@ import {
   addDate,
   unique,
   colors,
+  shuffleArray,
   type Props,
 } from "./utils";
 
@@ -181,12 +182,15 @@ const getUniqNames = (data: DataItem[]): string[] => {
   );
 };
 
-const getSeries = (uniqNames: string[]): SeriesItem[] => {
+const getSeries = (
+  uniqNames: string[],
+  shuffledColors: string[]
+): SeriesItem[] => {
   return uniqNames.map((key, index) => {
-    const colorIndex = index % colors.length;
+    const colorIndex = index % shuffledColors.length;
     return {
       name: key,
-      color: `${colors[colorIndex]}.6`,
+      color: `${shuffledColors[colorIndex]}.6`,
     };
   });
 };
@@ -247,7 +251,13 @@ const useChartData = (
     ]
   );
   const uniqNames = useMemo(() => getUniqNames(data), [data]);
-  const series = useMemo(() => getSeries(uniqNames), [uniqNames]);
+
+  const shuffledColors = useMemo(() => shuffleArray(colors), []);
+
+  const series = useMemo(
+    () => getSeries(uniqNames, shuffledColors),
+    [uniqNames, shuffledColors]
+  );
   const normalizedData = useMemo(
     () => getNormalizedData(data, uniqNames),
     [data, uniqNames]
