@@ -25,7 +25,7 @@ export type Props = {
     notebookEntryId: number;
     pageId: number;
   }[];
-  chartType: "area" | "bar" | "line" | "donut" | "pie" | "radar";
+  chartType: "area" | "bar" | "line" | "donut" | "pie" | "radar"; // "calendar"
   aggregationStartPeriod: Date;
   aggregationEndPeriod: Date;
   aggregationPeriod: { value: string; label: string };

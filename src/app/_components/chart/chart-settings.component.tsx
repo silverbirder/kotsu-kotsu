@@ -1,5 +1,5 @@
 "use client";
-
+import "dayjs/locale/ja";
 import React, { useCallback, useMemo } from "react";
 import {
   Card,
