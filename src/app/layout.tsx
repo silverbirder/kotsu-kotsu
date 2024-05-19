@@ -39,6 +39,12 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <ColorSchemeScript />
+        <link
+          rel="apple-touch-icon"
+          type="image/png"
+          href="/apple-touch-icon-180x180.png"
+        ></link>
+        <link rel="icon" type="image/png" href="/icon-192x192.png"></link>
       </head>
       <body className={inter.className}>
         <TRPCReactProvider>
