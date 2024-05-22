@@ -29,8 +29,13 @@ type Props = {
     items: Item[];
   };
   notebookId?: number;
+  hiddenSubmit?: boolean;
 };
-export function NotebookForm({ initialValues, notebookId }: Props) {
+export function NotebookForm({
+  initialValues,
+  notebookId,
+  hiddenSubmit,
+}: Props) {
   const form = useForm<{ title: string; items: Item[] }>({
     initialValues: initialValues ?? {
       title: "",
@@ -141,6 +146,7 @@ export function NotebookForm({ initialValues, notebookId }: Props) {
               key={itemIndex}
               align="flex-start"
               justify="flex-start"
+              wrap={"wrap"}
             >
               <Flex gap={"sm"} mt={24}>
                 <Button
@@ -262,9 +268,11 @@ export function NotebookForm({ initialValues, notebookId }: Props) {
             </Flex>
           ))}
         </Flex>
-        <Button type="submit" mt="lg">
-          保存
-        </Button>
+        {!hiddenSubmit && (
+          <Button type="submit" mt="lg">
+            保存
+          </Button>
+        )}
       </Stack>
     </form>
   );

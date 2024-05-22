@@ -1,47 +1,27 @@
 import { auth } from "@/server/auth";
-import { Link } from "@/app/_components/link";
-import { Button, Container, Title, Text, Flex, Divider } from "@mantine/core";
-import { pagesPath } from "@/lib/$path";
+import { Container, Title, Text, Flex, Divider, Stack } from "@mantine/core";
+import { SessionActions } from "@/app/_components/top/session-actions";
+import { NotebookSection } from "@/app/_components/top/notebook-section";
+import { ChartSection } from "@/app/_components/top/chart-section";
+import { CustomSection } from "@/app/_components/top/custom-section";
 
 export default async function Page() {
   const session = await auth();
   return (
-    <Container>
-      <Flex gap={"md"} direction={"column"}>
+    <Container size={"lg"}>
+      <Stack gap={"md"} align="flex-start">
         <Title order={1}>こつこつ</Title>
-        <Text size="xl">こつこつと、記録しよう</Text>
+        <Text size="xl" fw={"bold"}>
+          こつこつと、記録しよう！
+        </Text>
         <Divider />
-        <Flex
-          gap={"sm"}
-          direction={"column"}
-          justify={"flex-start"}
-          align={"flex-start"}
-        >
-          <Text>
-            {session
-              ? `${session.user.name}さん、こんにちは！`
-              : "まずはログイン！"}
-          </Text>
-          <Button
-            component={Link}
-            href={session ? "/api/auth/signout" : "/api/auth/signin"}
-          >
-            {session ? "Sign out" : "Sign in"}
-          </Button>
+        <SessionActions session={session} />
+        <Flex wrap={"wrap"} gap={"lg"} justify="space-between">
+          <NotebookSection />
+          <CustomSection />
+          <ChartSection />
         </Flex>
-        {session && (
-          <Flex
-            gap={"sm"}
-            direction={"column"}
-            justify={"flex-start"}
-            align={"flex-start"}
-          >
-            <Button component={Link} href={pagesPath.notebooks.$url().path}>
-              記録しよう
-            </Button>
-          </Flex>
-        )}
-      </Flex>
+      </Stack>
     </Container>
   );
 }
