@@ -4,100 +4,25 @@ import { env } from "@/env";
 import * as schema from "../schema";
 import { eq } from "drizzle-orm";
 
-const main = async () => {
-  const myUserId = env.DB_SEED_USER_ID ?? "";
-  const res = await db
-    .select()
-    .from(schema.notebooks)
-    .where(eq(schema.notebooks.title, "Notebook One"));
-  if (res.length > 0) {
-    console.log(`Already inserted notebook record (title: Notebook One)`);
-    return true;
-  }
+const createPageWithEntries = async (
+  notebookId: number,
+  volumeEntryId: number,
+  typeEntryId: number,
+  volumeValue: number,
+  typeValueId: number,
+  userId: string,
+  createdAt: Date
+) => {
+  const pageData = {
+    notebookId: notebookId,
+    remark: "",
+    createdAt: createdAt,
+    userId: userId,
+  };
 
-  const notebooksData = [
-    {
-      title: "Notebook One",
-      remark: "This is the first notebook",
-      createdAt: new Date(),
-      userId: myUserId,
-    },
-  ];
-  const notebookRes = await db
-    .insert(schema.notebooks)
-    .values(notebooksData)
-    .onConflictDoNothing()
-    .returning();
-  const notebookId = notebookRes[0]?.id ?? 0;
-
-  const notebookEntriesData = [
-    {
-      notebookId: notebookId,
-      label: "first label",
-      valueType: "string" as const,
-    },
-    {
-      notebookId: notebookId,
-      label: "second label",
-      valueType: "number" as const,
-    },
-    {
-      notebookId: notebookId,
-      label: "third label",
-      valueType: "boolean" as const,
-    },
-    {
-      notebookId: notebookId,
-      label: "forth label",
-      valueType: "array" as const,
-    },
-  ];
-  const notebookEntryRes = await db
-    .insert(schema.notebookEntries)
-    .values(notebookEntriesData)
-    .onConflictDoNothing()
-    .returning();
-  const notebookEntryFirstId = notebookEntryRes[0]?.id ?? 0;
-  const notebookEntrySecondId = notebookEntryRes[1]?.id ?? 0;
-  const notebookEntryThirdId = notebookEntryRes[2]?.id ?? 0;
-  const notebookEntryForthId = notebookEntryRes[3]?.id ?? 0;
-
-  const notebookEntryValueArraiesData = [
-    {
-      notebookEntryId: notebookEntryForthId,
-      value: "select 1",
-    },
-    {
-      notebookEntryId: notebookEntryForthId,
-      value: "select 2",
-    },
-    {
-      notebookEntryId: notebookEntryForthId,
-      value: "select 3",
-    },
-    {
-      notebookEntryId: notebookEntryForthId,
-      value: "select 4",
-    },
-  ];
-  const notebookEntryValueArrayRes = await db
-    .insert(schema.notebookEntryValueArraies)
-    .values(notebookEntryValueArraiesData)
-    .onConflictDoNothing()
-    .returning();
-  const notebookEntryValueArrayId = notebookEntryValueArrayRes[0]?.id ?? 0;
-
-  const pagesData = [
-    {
-      notebookId: notebookId,
-      remark: "Page 1 of Notebook 1",
-      createdAt: new Date(),
-      userId: myUserId,
-    },
-  ];
   const pageRes = await db
     .insert(schema.pages)
-    .values(pagesData)
+    .values([pageData])
     .onConflictDoNothing()
     .returning();
   const pageId = pageRes[0]?.id ?? 0;
@@ -105,22 +30,145 @@ const main = async () => {
   const pageEntriesData = [
     {
       pageId: pageId,
-      notebookEntryId: notebookEntryFirstId,
-      stringValue: "stringValue",
-    },
-    { pageId: pageId, notebookEntryId: notebookEntrySecondId, numberValue: 1 },
-    {
-      pageId: pageId,
-      notebookEntryId: notebookEntryThirdId,
-      booleanValue: true,
+      notebookEntryId: volumeEntryId,
+      numberValue: volumeValue,
     },
     {
       pageId: pageId,
-      notebookEntryId: notebookEntryForthId,
-      numberValue: notebookEntryValueArrayId,
+      notebookEntryId: typeEntryId,
+      numberValue: typeValueId,
     },
   ];
+
   await db.insert(schema.pageEntries).values(pageEntriesData);
+};
+
+const main = async () => {
+  const userId = env.DB_SEED_USER_ID ?? "";
+  const existingNotebook = await db
+    .select()
+    .from(schema.notebooks)
+    .where(eq(schema.notebooks.title, "コーヒーを飲んだ記録"));
+
+  if (existingNotebook.length > 0) {
+    console.log(
+      `Already inserted notebook record (title: コーヒーを飲んだ記録)`
+    );
+    return true;
+  }
+
+  const newNotebookData = {
+    title: "コーヒーを飲んだ記録",
+    remark: "",
+    createdAt: new Date(),
+    userId: userId,
+  };
+  const notebookRes = await db
+    .insert(schema.notebooks)
+    .values([newNotebookData])
+    .onConflictDoNothing()
+    .returning();
+  const notebookId = notebookRes[0]?.id ?? 0;
+
+  const notebookEntriesData = [
+    {
+      notebookId: notebookId,
+      label: "飲んだ量(ml)",
+      valueType: "number" as const,
+    },
+    {
+      notebookId: notebookId,
+      label: "コーヒーの種類",
+      valueType: "array" as const,
+    },
+  ];
+  const entryRes = await db
+    .insert(schema.notebookEntries)
+    .values(notebookEntriesData)
+    .onConflictDoNothing()
+    .returning();
+  const volumeEntryId = entryRes[0]?.id ?? 0;
+  const typeEntryId = entryRes[1]?.id ?? 0;
+
+  const entryValuesData = [
+    {
+      notebookEntryId: typeEntryId,
+      value: "アメリカンコーヒー",
+    },
+    {
+      notebookEntryId: typeEntryId,
+      value: "カフェオレ",
+    },
+    {
+      notebookEntryId: typeEntryId,
+      value: "エスプレッソ",
+    },
+  ];
+  const entryValuesRes = await db
+    .insert(schema.notebookEntryValueArraies)
+    .values(entryValuesData)
+    .onConflictDoNothing()
+    .returning();
+  const americanCoffeeId = entryValuesRes[0]?.id ?? 0;
+  const cafeAuLaitId = entryValuesRes[1]?.id ?? 0;
+  const espressoId = entryValuesRes[2]?.id ?? 0;
+
+  const currentDate = new Date();
+  const createEntryDate = (daysAgo: number, hour: number): Date => {
+    const date = new Date(currentDate);
+    date.setDate(date.getDate() - daysAgo);
+    date.setHours(hour, 0, 0, 0);
+    return date;
+  };
+
+  for (let i = 7; i > 0; i--) {
+    // 8 AM American Coffee 250ml
+    await createPageWithEntries(
+      notebookId,
+      volumeEntryId,
+      typeEntryId,
+      250,
+      americanCoffeeId,
+      userId,
+      createEntryDate(i, 8)
+    );
+
+    // 1 PM - Special rule for 4 days ago and 2 days ago
+    if (i === 4 || i === 2) {
+      await createPageWithEntries(
+        notebookId,
+        volumeEntryId,
+        typeEntryId,
+        150,
+        cafeAuLaitId,
+        userId,
+        createEntryDate(i, 13)
+      );
+    } else {
+      await createPageWithEntries(
+        notebookId,
+        volumeEntryId,
+        typeEntryId,
+        250,
+        americanCoffeeId,
+        userId,
+        createEntryDate(i, 13)
+      );
+    }
+  }
+
+  // 6 PM Espresso 200ml - for the last 3 days
+  for (let i = 3; i > 0; i--) {
+    await createPageWithEntries(
+      notebookId,
+      volumeEntryId,
+      typeEntryId,
+      200,
+      espressoId,
+      userId,
+      createEntryDate(i, 18)
+    );
+  }
 };
 
 export default main;
