@@ -5,6 +5,8 @@ import "@mantine/charts/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 
+import type { Metadata } from "next";
+
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
@@ -21,9 +23,12 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "こつこつ",
   description: "こつこつ記録するだけ",
+  robots: {
+    index: true,
+  },
   metadataBase: new URL(env.BASE_URL),
   alternates: {
     canonical: "/",
