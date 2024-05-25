@@ -55,6 +55,16 @@ export default async function Page() {
                       <Button
                         component={Link}
                         href={
+                          pagesPath.notebooks
+                            ._notebookId(notebook.id)
+                            .pages.create.$url().path
+                        }
+                      >
+                        記録
+                      </Button>
+                      <Button
+                        component={Link}
+                        href={
                           pagesPath.notebooks._notebookId(notebook.id).$url()
                             .path
                         }
