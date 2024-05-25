@@ -1,4 +1,4 @@
-import { Text, Stack, Card } from "@mantine/core";
+import { Text, Stack, Fieldset } from "@mantine/core";
 import { NotebookForm } from "../notebook-form";
 
 export function CustomSection() {
@@ -9,7 +9,7 @@ export function CustomSection() {
       justify={"flex-start"}
       style={{ flex: "1 1 45%", maxWidth: "330px" }}
     >
-      <Card withBorder>
+      <Fieldset legend="記録フォーマット" style={{ width: "100%" }} mt={-10}>
         <NotebookForm
           initialValues={{
             title: "コーヒーを飲んだ記録",
@@ -23,7 +23,7 @@ export function CustomSection() {
           }}
           hiddenSubmit
         />
-      </Card>
+      </Fieldset>
       <Text size="md">
         記録する内容を自分で自由に定義できます。
         例えば、飲んだコーヒーの量や飲んだ薬の種類などを記録できます。

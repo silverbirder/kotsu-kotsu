@@ -16,7 +16,7 @@ export default async function Page() {
         </Text>
         <Divider />
         <SessionActions session={session} />
-        <Flex wrap={"wrap"} gap={"lg"} justify="space-between">
+        <Flex wrap={"wrap"} gap={"lg"}>
           <NotebookSection />
           <CustomSection />
           <ChartSection />
