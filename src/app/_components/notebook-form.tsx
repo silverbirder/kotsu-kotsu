@@ -1,7 +1,16 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { TextInput, Flex, Select, Button, Stack, Text } from "@mantine/core";
+import {
+  TextInput,
+  Flex,
+  Select,
+  Button,
+  Stack,
+  Text,
+  ActionIcon,
+  Fieldset,
+} from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { pagesPath } from "@/lib/$path";
@@ -140,23 +149,22 @@ export function NotebookForm({
           justify="flex-start"
         >
           {form.values.items.map((item, itemIndex) => (
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              gap={"sm"}
-              key={itemIndex}
-              align="flex-start"
-              justify="flex-start"
-              wrap={"wrap"}
-            >
-              <Flex gap={"sm"} mt={24}>
-                <Button
-                  leftSection={<IconCirclePlus size={14} />}
+            <Fieldset key={itemIndex} legend="項目" style={{ width: "100%" }}>
+              <Flex gap={"sm"}>
+                <ActionIcon
+                  h={35}
+                  w={35}
+                  variant="filled"
+                  aria-label="add-entry"
                   onClick={() => form.insertListItem("items", initItem)}
                 >
-                  追加
-                </Button>
-                <Button
-                  leftSection={<IconCircleMinus size={14} />}
+                  <IconCirclePlus size={14} />
+                </ActionIcon>
+                <ActionIcon
+                  h={35}
+                  w={35}
+                  variant="filled"
+                  aria-label="delete-entry"
                   onClick={() => {
                     if (form.values.items[itemIndex]?.notebookEntryId) {
                       modals.openConfirmModal({
@@ -180,92 +188,107 @@ export function NotebookForm({
                   color="red"
                   disabled={form.values.items.length === 1}
                 >
-                  削除
-                </Button>
+                  <IconCircleMinus size={14} />
+                </ActionIcon>
               </Flex>
-              <TextInput
-                label="ラベル名"
-                {...form.getInputProps(`items.${itemIndex}.label`)}
-              />
-              <Select
-                label="種類"
-                data={selectOptions}
-                {...form.getInputProps(`items.${itemIndex}.valueType`)}
-              />
-              {item.valueType === "array" && (
-                <Flex direction={"column"}>
-                  {item.array.map((_, aryIndex) => (
-                    <Flex
-                      direction={"row"}
-                      gap={"sm"}
-                      key={aryIndex}
-                      align="flex-start"
-                      justify="flex-start"
-                    >
-                      <TextInput
-                        label="選択肢の名前"
-                        {...form.getInputProps(
-                          `items.${itemIndex}.array.${aryIndex}.value`
-                        )}
-                      />
-                      <Flex gap={"sm"} mt={24}>
-                        <Button
-                          onClick={() =>
-                            form.insertListItem(`items.${itemIndex}.array`, {
-                              value: "",
-                            })
-                          }
-                          leftSection={<IconCirclePlus size={14} />}
-                        >
-                          追加
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            if (
-                              form.values.items[itemIndex]?.array[aryIndex]
-                                ?.notebookEntryValueArrayId
-                            ) {
-                              modals.openConfirmModal({
-                                title: "削除確認",
-                                labels: {
-                                  confirm: "削除する",
-                                  cancel: "削除しない",
-                                },
-                                children: (
-                                  <Flex gap={"md"} direction={"column"}>
-                                    <Text>
-                                      削除する項目を使用しているデータは失われます。よろしいですか？
-                                    </Text>
-                                  </Flex>
-                                ),
-                                onConfirm: () =>
-                                  form.removeListItem(
-                                    `items.${itemIndex}.array`,
-                                    aryIndex
-                                  ),
-                                confirmProps: { color: "red" },
-                              });
-                            } else {
-                              form.removeListItem(
-                                `items.${itemIndex}.array`,
-                                aryIndex
-                              );
+              <Flex
+                direction={{ base: "column", md: "row" }}
+                gap={"sm"}
+                align="flex-start"
+                justify="flex-start"
+                wrap={"wrap"}
+                mt={4}
+              >
+                <TextInput
+                  label="ラベル名"
+                  {...form.getInputProps(`items.${itemIndex}.label`)}
+                />
+                <Select
+                  label="種類"
+                  data={selectOptions}
+                  {...form.getInputProps(`items.${itemIndex}.valueType`)}
+                />
+                {item.valueType === "array" && (
+                  <Flex direction={"column"}>
+                    {item.array.map((_, aryIndex) => (
+                      <Flex
+                        direction={"row"}
+                        gap={"sm"}
+                        key={aryIndex}
+                        align="flex-start"
+                        justify="flex-start"
+                      >
+                        <TextInput
+                          label="カテゴリ名"
+                          {...form.getInputProps(
+                            `items.${itemIndex}.array.${aryIndex}.value`
+                          )}
+                        />
+                        <Flex gap={"sm"} mt={24}>
+                          <ActionIcon
+                            h={35}
+                            w={35}
+                            variant="filled"
+                            aria-label="add-item"
+                            onClick={() =>
+                              form.insertListItem(`items.${itemIndex}.array`, {
+                                value: "",
+                              })
                             }
-                          }}
-                          leftSection={<IconCircleMinus size={14} />}
-                          disabled={
-                            form.values.items[itemIndex]?.array.length === 1
-                          }
-                          color="red"
-                        >
-                          削除
-                        </Button>
+                          >
+                            <IconCirclePlus size={14} />
+                          </ActionIcon>
+                          <ActionIcon
+                            h={35}
+                            w={35}
+                            variant="filled"
+                            aria-label="delete-item"
+                            onClick={() => {
+                              if (
+                                form.values.items[itemIndex]?.array[aryIndex]
+                                  ?.notebookEntryValueArrayId
+                              ) {
+                                modals.openConfirmModal({
+                                  title: "削除確認",
+                                  labels: {
+                                    confirm: "削除する",
+                                    cancel: "削除しない",
+                                  },
+                                  children: (
+                                    <Flex gap={"md"} direction={"column"}>
+                                      <Text>
+                                        削除する項目を使用しているデータは失われます。よろしいですか？
+                                      </Text>
+                                    </Flex>
+                                  ),
+                                  onConfirm: () =>
+                                    form.removeListItem(
+                                      `items.${itemIndex}.array`,
+                                      aryIndex
+                                    ),
+                                  confirmProps: { color: "red" },
+                                });
+                              } else {
+                                form.removeListItem(
+                                  `items.${itemIndex}.array`,
+                                  aryIndex
+                                );
+                              }
+                            }}
+                            disabled={
+                              form.values.items[itemIndex]?.array.length === 1
+                            }
+                            color="red"
+                          >
+                            <IconCircleMinus size={14} />
+                          </ActionIcon>
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  ))}
-                </Flex>
-              )}
-            </Flex>
+                    ))}
+                  </Flex>
+                )}
+              </Flex>
+            </Fieldset>
           ))}
         </Flex>
         {!hiddenSubmit && (
