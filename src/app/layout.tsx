@@ -19,6 +19,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AppShellLayout } from "@/app/_components/app-shell-layout";
 import { env } from "@/env";
 
+import { GoogleAnalytics } from "@next/third-parties/google";
+
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -62,6 +64,9 @@ export default function RootLayout({
         </TRPCReactProvider>
         <SpeedInsights />
       </body>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
     </html>
   );
 }
