@@ -20,6 +20,7 @@ import { AppShellLayout } from "@/app/_components/app-shell-layout";
 import { env } from "@/env";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({
       {process.env.NEXT_PUBLIC_GA_ID && (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
       )}
+      <Analytics />
     </html>
   );
 }
