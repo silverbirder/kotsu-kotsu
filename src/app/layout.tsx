@@ -15,7 +15,6 @@ import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AppShellLayout } from "@/app/_components/app-shell-layout";
 import { env } from "@/env";
 
@@ -63,7 +62,6 @@ export default function RootLayout({
             </ModalsProvider>
           </MantineProvider>
         </TRPCReactProvider>
-        <SpeedInsights />
       </body>
       {process.env.NEXT_PUBLIC_GA_ID && (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
